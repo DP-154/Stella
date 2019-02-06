@@ -11,7 +11,7 @@ install:
   - pipenv install --dev
   - pip install pytest-cov
 script:
-  - pytest --cov=./elementary_tasks/tests
+  - pytest --cov=./tests
 notifications:
   email:
     on_success: never
