@@ -2,20 +2,45 @@ import dropbox
 
 from dropbox.exceptions import ApiError
 
+import requests
+
 from collections import namedtuple
 
+class DataProviderBase:
+    smoke_url = None
 
-class DropBoxDataProvider:
+    @staticmethod
+    def make_get_request(url) -> requests.Response:
+        r = requests.get(url)
+        r.raise_for_status()
+        return r
+
+    def smoke(self) -> tuple:
+        if not self.smoke_url:
+            raise ValueError('You have to specify URL for smoke testing')
+        result = self.make_get_request(self.smoke_url)
+        return result.status_code, result.text
+
+    def api_smoke(self):
+        raise NotImplementedError
+
+
+class DropBoxDataProvider(DataProviderBase):
+    smoke_url = 'https://dropbox.com'
 
     def __init__(self, acs_token):
         self.dbx = dropbox.Dropbox(acs_token)
+
+    def api_smoke(self) -> None:
+        if not self.dbx.files_list_folder('').entries:
+            raise Exception('There are no files in your Dropbox account')
 
     def get_list_of_objects(self, dbx_folder='') -> list:
         result = namedtuple('Result', ['filename', 'filepatch'])
         try:
             return [result(el.name, el.path_lower) for el in self.dbx.files_list_folder(dbx_folder).entries]
         except ApiError:
-            return []
+            return None
 
     def file_delete(self, dbx_file) -> bool:
         try:
