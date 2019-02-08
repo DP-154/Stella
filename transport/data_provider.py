@@ -1,10 +1,11 @@
-import dropbox
+from collections import namedtuple
 
+import dropbox
+import requests
 from dropbox.exceptions import ApiError
 
-import requests
+import constants
 
-from collections import namedtuple
 
 class DataProviderBase:
     smoke_url = None
@@ -26,7 +27,7 @@ class DataProviderBase:
 
 
 class DropBoxDataProvider(DataProviderBase):
-    smoke_url = 'https://dropbox.com'
+    smoke_url = constants.DROPOBOX_SMOKE_URL
 
     def __init__(self, acs_token):
         self.dbx = dropbox.Dropbox(acs_token)
@@ -35,38 +36,33 @@ class DropBoxDataProvider(DataProviderBase):
         if not self.dbx.files_list_folder('').entries:
             raise Exception('There are no files in your Dropbox account')
 
+    def _answer(f):
+        def wrapper(*args):
+            try:
+                return f(*args)
+            except ApiError:
+                return None
+
+        return wrapper
+
+    @_answer
     def get_list_of_objects(self, dbx_folder='') -> list:
         result = namedtuple('Result', ['filename', 'filepatch'])
-        try:
-            return [result(el.name, el.path_lower) for el in self.dbx.files_list_folder(dbx_folder).entries]
-        except ApiError:
-            return None
+        return [result(el.name, el.path_lower) for el in self.dbx.files_list_folder(dbx_folder).entries]
 
-    def file_delete(self, dbx_file) -> bool:
-        try:
-            self.dbx.files_delete_v2(dbx_file)
-        except ApiError:
-            return False
-        return True
+    @_answer
+    def file_delete(self, dbx_file) -> dropbox.files.DeleteResult:
+        return self.dbx.files_delete_v2(dbx_file).metadata.path_lower
 
-    def file_download(self, local_file, dbx_file) -> bool:
-        try:
-            self.dbx.files_download_to_file(local_file, dbx_file)
-        except ApiError:
-            return False
-        return True
+    @_answer
+    def file_download(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
+        return self.dbx.files_download_to_file(local_file, dbx_file).path_lower
 
-    def file_upload(self, local_file, dbx_file) -> bool:
+    @_answer
+    def file_upload(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
         with open(local_file, 'rb') as f:
-            try:
-                self.dbx.files_upload(f.read(), dbx_file)
-            except ApiError:
-                return False
-        return True
+            return self.dbx.files_upload(f.read(), dbx_file).path_lower
 
-    def file_move(self, dbx_file_from, dbx_file_to) -> bool:
-        try:
-            self.dbx.files_move_v2(dbx_file_from, dbx_file_to)
-        except ApiError:
-            return False
-        return True
+    @_answer
+    def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
+        return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
