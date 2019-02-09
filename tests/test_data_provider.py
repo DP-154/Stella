@@ -3,6 +3,7 @@ from collections import namedtuple
 from unittest.mock import patch, Mock
 
 import pytest
+from dropbox import dropbox
 
 import tests.constants as con
 from tests.constants import dbdp
@@ -71,9 +72,11 @@ class TestDataProvider:
 
     def test_file_upload_success(self):
         assert dbdp.file_upload(con.local_file, con.dbx_file) == con.dbx_file
+        assert isinstance(dbdp.file_upload(con.local_file, con.dbx_file), dropbox.files.FileMetadata)
 
     def test_file_move_success(self):
         assert dbdp.file_move(con.dbx_file, con.dbx_file_to_move) == con.dbx_file_to_move
+        assert isinstance(dbdp.file_upload(con.local_file, con.dbx_file), dropbox.files.RelocationResult)
 
     def test_file_move_failed(self):
         dbx_no_file = '/ss_dpb_test/1'
@@ -81,6 +84,7 @@ class TestDataProvider:
 
     def test_file_download_success(self):
         assert dbdp.file_download(con.local_file, con.dbx_file) == con.dbx_file
+        assert isinstance(dbdp.file_download(con.local_file, con.dbx_file), dropbox.files.FileMetadata)
 
     @pytest.mark.xfail(raises=FileNotFoundError)
     def test_file_download_file_not_found_failed(self):
@@ -92,6 +96,7 @@ class TestDataProvider:
 
     def test_file_delete_success(self):
         assert dbdp.file_delete(con.dbx_file) == con.dbx_file
+        assert isinstance(dbdp.file_delete(con.dbx_file), dropbox.files.DeleteResult)
 
     def test_file_delete_failed(self):
         assert dbdp.file_delete(con.dbx_file) == None
