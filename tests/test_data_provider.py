@@ -5,8 +5,8 @@ from unittest.mock import patch, Mock
 import pytest
 from dropbox import dropbox
 
-import tests.constants as con
-from tests.constants import dbdp
+import tests.required_data as con
+from tests.required_data import dbdp
 
 
 @patch('transport.data_provider.dropbox')
