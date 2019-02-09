@@ -33,21 +33,21 @@ class TestDataProvider:
             os.remove(file_from)
         os.rmdir(path)
 
-    def test_smoke_positive(self, *args, **kwargs):
+    def test_smoke_positive(self):
         assert dbdp.smoke()[0] == 200
         assert dbdp.smoke()[1] == 'Ok'
 
     @pytest.mark.xfail(raises=ValueError)
-    def test_smoke_missed_url(self, *args, **kwargs):
+    def test_smoke_missed_url(self):
         dbdp.smoke_url = None
         dbdp.smoke()
 
-    def test_api_smoke_positive(self, *args, **kwargs):
+    def test_api_smoke_positive(self):
         dbdp.dbx = Mock()
         dbdp.api_smoke()
 
     @pytest.mark.xfail(raises=Exception)
-    def test_api_smoke_negative(self, *args, **kwargs):
+    def test_api_smoke_negative(self):
         dbdp.dbx.files_list_folder = Mock(return_value=Mock(entries=None))
         dbdp.api_smoke()
 
