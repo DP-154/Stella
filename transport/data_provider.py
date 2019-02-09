@@ -27,7 +27,7 @@ class DataProviderBase:
 
 
 class DropBoxDataProvider(DataProviderBase):
-    smoke_url = constants.DROPOBOX_SMOKE_URL
+    smoke_url = constants.DROPBOX_SMOKE_URL
 
     def __init__(self, acs_token):
         self.dbx = dropbox.Dropbox(acs_token)
