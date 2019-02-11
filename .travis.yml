@@ -5,11 +5,12 @@ sudo: true
 install:
   - pip install pipenv
   - pipenv install --dev
-  - pip install pytest-cov
-script: 
-  matrix:
-    allow_failures:
-      - pytest --cov=./tests/
+  - pip install pytest-cov 
+matrix:
+  include:
+    - script: pytest --cov=./tests/
+  allow_failures:
+    - script: pytest --cov=./tests/
 notifications:
   email:
     on_success: never
