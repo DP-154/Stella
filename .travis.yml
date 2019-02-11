@@ -8,7 +8,8 @@ install:
   - pip install pytest-cov
 matrix:
   allow_failures:
-    - script: pytest --cov=./tests/
+    - script: 
+      - pytest --cov=./tests/
 notifications:
   email:
     on_success: never
