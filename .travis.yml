@@ -6,8 +6,10 @@ install:
   - pip install pipenv
   - pipenv install --dev
   - pip install pytest-cov
-script:
-  - pytest --cov=./tests/
+matrix:
+  allow_failures:
+    script:
+      - pytest --cov=./tests/
 notifications:
   email:
     on_success: never
