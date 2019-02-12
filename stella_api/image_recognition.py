@@ -64,8 +64,7 @@ def img_recognition(image_path):
 
 
 
-
-
+'''
 if __name__ == '__main__':
 
     print(os.listdir('/home/kerch007/PycharmProjects/Stella/stella_api/img/'))
@@ -78,6 +77,7 @@ if __name__ == '__main__':
 
     print(img_recognition(path2))
 
+'''
 
 
 
