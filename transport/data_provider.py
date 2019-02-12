@@ -27,7 +27,7 @@ class DataProviderBase:
 
 
 class DropBoxDataProvider(DataProviderBase):
-    smoke_url = constants.DROPOBOX_SMOKE_URL
+    smoke_url = constants.DROPBOX_SMOKE_URL
 
     def __init__(self, acs_token):
         self.dbx = dropbox.Dropbox(acs_token)
@@ -66,3 +66,4 @@ class DropBoxDataProvider(DataProviderBase):
     @_answer
     def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
+
