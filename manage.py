@@ -4,9 +4,11 @@ this file will manage main app and telegram bot
 """
 import click
 
+from bots.telegram_bot import main
+
 
 def run_bot():
-    pass
+    main()
 
 @click.command()
 @click.option('-b', '--runbot', is_flag=True, help="Run Telegram bot")
