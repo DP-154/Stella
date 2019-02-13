@@ -1,1 +1,2 @@
-DROPBOX_SMOKE_URL='https://dropbox.com'
+DROPBOX_SMOKE_URL = 'https://dropbox.com'
+
