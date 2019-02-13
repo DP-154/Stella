@@ -21,7 +21,7 @@ def my_setup(request):
         f.write(str(con.rand))
 
     dbdp.file_upload(con.local_file, con.dbx_file)
-    # dbx.files_create_folder_v2(con.dbx_empty_folder)
+    dbdp.create_folder(con.dbx_empty_folder)
     dbdp.file_upload(con.local_file, con.dbx_not_empty_folder_file)
 
     def my_teardown():
@@ -30,7 +30,7 @@ def my_setup(request):
         os.remove(file_from)
         os.rmdir(path)
         dbdp.file_delete(con.dbx_folder)
-        # dbdp.file_delete(con.dbx_empty_folder)
+        dbdp.file_delete(con.dbx_empty_folder)
         dbdp.file_delete(con.dbx_folder_file_to_move)
         dbdp.file_delete(con.dbx_not_empty_folder)
 
