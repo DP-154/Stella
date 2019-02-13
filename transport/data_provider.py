@@ -26,43 +26,50 @@ class DataProviderBase:
         raise NotImplementedError
 
 
+def _answer(f):
+    def wrapper(*args):
+        try:
+            return f(*args)
+        except ApiError:
+            return None
+
+    return wrapper
+
+
+def for_all_methods(decorator):
+    def decorate(cls):
+        for attr in cls.__dict__:
+            if callable(getattr(cls, attr)):
+                setattr(cls, attr, decorator(getattr(cls, attr)))
+        return cls
+
+    return decorate
+
+
+@for_all_methods(_answer)
 class DropBoxDataProvider(DataProviderBase):
     smoke_url = constants.DROPBOX_SMOKE_URL
 
     def __init__(self, acs_token):
         self.dbx = dropbox.Dropbox(acs_token)
 
-    def api_smoke(self) -> None:
-        if not self.dbx.files_list_folder('').entries:
-            raise Exception('There are no files in your Dropbox account')
+    def api_smoke(self) -> int:
+        return len(self.dbx.files_list_folder('').entries)
 
-    def _answer(f):
-        def wrapper(*args):
-            try:
-                return f(*args)
-            except ApiError:
-                return None
-
-        return wrapper
-
-    @_answer
     def get_list_of_objects(self, dbx_folder='') -> list:
         result = namedtuple('Result', ['filename', 'filepatch'])
         return [result(el.name, el.path_lower) for el in self.dbx.files_list_folder(dbx_folder).entries]
 
-    @_answer
     def file_delete(self, dbx_file) -> dropbox.files.DeleteResult:
         return self.dbx.files_delete_v2(dbx_file).metadata.path_lower
 
-    @_answer
     def file_download(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
         return self.dbx.files_download_to_file(local_file, dbx_file).path_lower
 
-    @_answer
     def file_upload(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
         with open(local_file, 'rb') as f:
             return self.dbx.files_upload(f.read(), dbx_file).path_lower
 
-    @_answer
     def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
+
