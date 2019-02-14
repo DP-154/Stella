@@ -13,7 +13,7 @@ click = "*"
 pytesseract = "*"
 pillow = "*"
 opencv-python = "*"
-pytelegrambot = "*"
+python-telegram-bot = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
 
