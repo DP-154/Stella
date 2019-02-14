@@ -4,10 +4,9 @@ from unittest.mock import patch, Mock, PropertyMock
 import pytest
 
 import tests.required_data as con
-from asc_token import ACS_TOKEN
 from transport.data_provider import DropBoxDataProvider
 
-#ACS_TOKEN = '****'
+ACS_TOKEN = os.environ['DROPBOX_TOKEN']
 
 @pytest.fixture(scope='function')
 def my_setup(request):

@@ -9,7 +9,7 @@ import tests.required_data as con
 from transport.data_provider import DropBoxDataProvider
 #from asc_token import ACS_TOKEN
 
-ACS_TOKEN = '****'
+ACS_TOKEN = os.environ['DROPBOX_TOKEN']
 
 #dbdp = DropBoxDataProvider(ACS_TOKEN)
 
