@@ -2,6 +2,7 @@ import os
 from unittest.mock import patch, Mock, PropertyMock
 
 import pytest
+from dropbox import dropbox
 
 import tests.required_data as con
 from asc_token import ACS_TOKEN
@@ -9,25 +10,32 @@ from transport.data_provider import DropBoxDataProvider
 
 #ACS_TOKEN = '****'
 
+
 @pytest.fixture(scope='function')
 def my_setup(request):
     path = os.path.join(os.path.dirname(__file__), 'dpb_download/')
     os.makedirs(path)
+    dbdp = DropBoxDataProvider(ACS_TOKEN)
 
-    for i in range(11):
-        file_name_create = 'dropbox_t_file' + str(i) + '.txt'
-        file_from = path + file_name_create
-        with open(file_from, 'w') as f:
-            f.write(str(i))
+    with open(con.local_file, 'w') as f:
+        f.write(str(con.rand))
+
+    dbdp.file_upload(con.local_file, con.dbx_file)
+    dbdp.create_folder(con.dbx_empty_folder)
+    dbdp.file_upload(con.local_file, con.dbx_not_empty_folder_file)
 
     def my_teardown():
         path = os.path.join(os.path.dirname(__file__), 'dpb_download/')
-        for i in range(11):
-            file_name = 'dropbox_t_file' + str(i) + '.txt'
-            file_from = os.path.join(os.path.dirname(__file__), 'dpb_download/' + file_name)
-            os.remove(file_from)
+        file_from = os.path.join(os.path.dirname(__file__), 'dpb_download/' + con.file_name)
+        os.remove(file_from)
         os.rmdir(path)
+        dbdp.file_delete(con.dbx_folder)
+        dbdp.file_delete(con.dbx_empty_folder)
+        dbdp.file_delete(con.dbx_folder_file_to_move)
+        dbdp.file_delete(con.dbx_not_empty_folder)
+
     request.addfinalizer(my_teardown)
+
 
 
 @patch(
@@ -60,10 +68,9 @@ def test_api_smoke_negative():
     dbdp.api_smoke()
 
 
-def test_empty_get_list_of_objects_success():
+def test_empty_get_list_of_objects_success(my_setup):
     dbdp = DropBoxDataProvider(ACS_TOKEN)
-    dbx_empty_folder = '/ss_dpb_test_empty_folder'
-    assert isinstance(dbdp.get_list_of_objects(dbx_empty_folder), list)
+    assert isinstance(dbdp.get_list_of_objects(con.dbx_empty_folder), list)
 
 
 def test_not_empty_get_list_of_objects_success():
@@ -96,19 +103,20 @@ def test_file_download_file_not_found_failed():
     dbdp.file_download(wrong_local_file, con.dbx_file)
 
 
-def test_file_move_success():
+def test_file_move_success(my_setup):
     dbdp = DropBoxDataProvider(ACS_TOKEN)
     res = dbdp.file_move(con.dbx_file, con.dbx_file_to_move)
     exp = str(con.dbx_file_to_move)
+
     assert res == exp
 
 
-def test_file_move_failed():
+def test_file_move_failed(my_setup):
     dbdp = DropBoxDataProvider(ACS_TOKEN)
     assert dbdp.file_move(con.dbx_no_file, con.dbx_file_to_move) is None
 
 
-def test_file_download_file_None_failed():
+def test_file_download_file_None_failed(my_setup):
     dbdp = DropBoxDataProvider(ACS_TOKEN)
     assert dbdp.file_download(con.local_file, con.dbx_file_empty) is None
 
@@ -127,14 +135,14 @@ def test_file_upload_success(my_setup):
     assert res == exp
 
 
-def test_file_delete_success():
+def test_file_delete_success(my_setup):
     dbdp = DropBoxDataProvider(ACS_TOKEN)
     res = dbdp.file_delete(con.dbx_file)
     exp = con.dbx_file
     assert res == exp
 
 
-def test_file_delete_failed():
+def test_file_delete_failed(my_setup):
     dbdp = DropBoxDataProvider(ACS_TOKEN)
     assert dbdp.file_delete(con.dbx_file_empty) is None
 
