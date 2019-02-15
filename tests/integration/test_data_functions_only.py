@@ -2,13 +2,12 @@ import os
 from unittest.mock import patch, Mock, PropertyMock
 
 import pytest
-from dropbox import dropbox
 
-import tests.required_data as con
-from asc_token import ACS_TOKEN
+import tests.integration.required_data as con
 from transport.data_provider import DropBoxDataProvider
 
-#ACS_TOKEN = '****'
+
+ACS_TOKEN = os.environ['DROPBOX_TOKEN']
 
 
 @pytest.fixture(scope='function')
@@ -37,17 +36,6 @@ def my_setup(request):
     request.addfinalizer(my_teardown)
 
 
-
-@patch(
-    'transport.data_provider.DataProviderBase.make_get_request',
-    new=Mock(return_value=Mock(status_code=200, text='Ok')),
-)
-def test_smoke_positive():
-    dbdp = DropBoxDataProvider(ACS_TOKEN)
-    assert dbdp.smoke()[0] == 200
-    assert dbdp.smoke()[1] == 'Ok'
-
-
 @pytest.mark.xfail(raises=ValueError)
 def test_smoke_missed_url():
     dbdp = DropBoxDataProvider(ACS_TOKEN)
@@ -55,10 +43,19 @@ def test_smoke_missed_url():
     dbdp.smoke()
 
 
+@patch('transport.data_provider.DataProviderBase.make_get_request',
+       new=Mock(return_value=Mock(status_code=200, text='Ok')), )
+def test_smoke_positive():
+    dbdp = DropBoxDataProvider(ACS_TOKEN)
+    assert dbdp.smoke()[0] == 200
+    assert dbdp.smoke()[1] == 'Ok'
+
+
 def test_api_smoke_positive():
     dbdp = DropBoxDataProvider(ACS_TOKEN)
-    dbdp.dbx = Mock()
-    dbdp.api_smoke()
+    res = dbdp.api_smoke()
+    exp = 1
+    assert res == exp
 
 
 @pytest.mark.xfail(raises=Exception)
@@ -145,4 +142,3 @@ def test_file_delete_success(my_setup):
 def test_file_delete_failed(my_setup):
     dbdp = DropBoxDataProvider(ACS_TOKEN)
     assert dbdp.file_delete(con.dbx_file_empty) is None
-
