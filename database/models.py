@@ -14,6 +14,7 @@ class User(Base):
     id = Column(uuid, primary_key=True)
     user_name = Column('user_name', String)
     date_of_registration = Column('date_of_registration', DateTime, default=datetime.datetime.utcnow())
+    images_connections = relationship('Images')
 
 
 class FuelCompany(Base):
@@ -21,6 +22,8 @@ class FuelCompany(Base):
 
     id = Column(uuid, primary_key=True)
     fuel_company_name = Column('fuel_company_name', String)
+    gas_station_connection = relationship('GasStation')
+
 
 
 class Fuel(Base):
@@ -29,7 +32,7 @@ class Fuel(Base):
     id = Column(uuid, primary_key=True)
     fuel_type = Column('fuel_type', String, nullable=False)
     is_premium = Column('is_premium', Boolean)
-    fuel_connections = relationship("Association")
+    price_connections = relationship('Price')
 
 
 class GasStation(Base):
@@ -37,10 +40,10 @@ class GasStation(Base):
 
     id = Column(uuid, primary_key=True)
     gas_station_name = Column('gas_station_name', String)
-    gps_location = Column('gps_location', String) # поиска gps тип данных
+    gps_location = Column('gps_location', String)
     fuel_company_id = Column(Integer, ForeignKey('fuel_company.id'))
-    fuel_company = relationship("FuelCompany")
-    gas_station_connections = relationship("Association")
+    fuel_company_connection = relationship('FuelCompany')
+    price_connections = relationship('Price')
 
 
 class Images(Base):
@@ -50,8 +53,11 @@ class Images(Base):
     link = Column('link', String)
     is_recognized = Column('is_recognized', Boolean)
     created_at = Column('created_at', DateTime, default=datetime.datetime.utcnow())
+    is_from_metadata = Column('is_from_metadata', Boolean)
     created_by = Column('creted_by', String)
-    images_connections = relationship("Association")
+    user_id = Column(uuid, ForeignKey('user.id'))
+    user_connections = relationship('User')
+    price_connections = relationship('Price')
 
 
 class Price(Base):
@@ -60,20 +66,7 @@ class Price(Base):
     id = Column(uuid, primary_key=True)
     price = Column('price', DECIMAL(precision=2), nullable=False)
     date_of_price = Column('date_of_price', DateTime, default=datetime.datetime.utcnow())
-    price_and_date_connections = relationship("Association")
-
-
-class Association(Base):
-    __tablename__ = 'association'
-
-    id = Column(uuid, primary_key=True)
-    price_id = Column(uuid, ForeignKey('price.id'))
-    images_id = Column(uuid, ForeignKey('images.id'))
     gas_station_id = Column(uuid, ForeignKey('gas_station.id'))
     fuel_id = Column(uuid, ForeignKey('fuel.id'))
-
-    price = relationship("Price", back_populates="")
-    images = relationship("Images", back_populates="")
-    gas_station = relationship("GasStation", back_populates="Fuel")
-    fuel = relationship("Fuel", back_populates="GasStation")
+    images_id = Column(uuid, ForeignKey('images.id'))
 
