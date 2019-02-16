@@ -9,6 +9,7 @@ install:
 matrix:
   include:
   - script: pytest --cov=./tests/unit ./tests/unit
+  - script: pytest --cov=./tests/integration ./tests/integration
 notifications:
   email:
     on_success: never
@@ -20,3 +21,6 @@ deploy:
     dev: stella-app-dp-dev
   api_key:
     secure: ACn/gNzWTLxERhpipnu7nHFFcct0nvsvIas+0S9mG9ZkKKDgjr6U4a7/YgOthkh6HPVMzBkYxdaCK3sJWy4g5j78VTxlYEWp7YB2agl3+TaswzfclGC+ojHiYMvbQouu+C1sLnXI0b9Bc81qImZDyv5a1jQxjv3TM9acf2WgKHPsisAyRUxbMcC0Ym+PKYcGkNhIJG1nLVXgqE8ZHARMrtLQ/jjlwpFmf2UGNQ/oyWze7zbIo4BEfmhyyo90QLOa9myXO8M+6DX7uLvk1U6HaQSr/4xXEQwaXN5nPDFrsFx2PRgah619lKrskD0ZYQrltOJ0ybznwrlo4zdmbXnkSJ5Vr24MxQzZ8bz3k5lVDuy1k6zw6Frjw4fcslFeO0NQzp8/WYsiLumfPeW/S2K4VsmJmYlGH2gfQBUo8tGLrPDAm/6jSjWnLxaCaxg2b7W2HblXAI1ML8UxnFq2QAH2p0Snlumcs75DRGlpDQ0Laqy9678QAd216OFI3FM9i/NMXmfyyZOxM7zNWDnjl28xxYha1PP3ZJB/iCcvVVUTghCIwVT/AUTjFszz1L78mBmhYE5vTAV0/+62aVVQb7pbbrh6l1TnbcUOGZStdtSIz0ZkTWXRYMXSrnjY+zWRW0eFxwu6EHsCTqR9P2HlZOqdOs2ycBHL4QawaE3fIpy0gh0=
+env:
+  global:
+    secure: RrF4nRFMH+NgtYPvBXedPNsHZZAhpyrXg+g+mcpHbsGmLOeym297cehVgXQAg/ou3qcDnKQj4AujXFeFzFWPTnSpdl64ffbNgIJyOpQiGFtAII1lNxKTqAMCKVRsoWMUYgQN+3nxl1h6sX1hAnPrrTEmM82WZSz/uttiEV0RI05qKKERwTBz8ZfBAkDm6YqMIF2xPYj0/fw8YWJtQCxI5+mAQTH16a7kYJ41WxCvOedOUumaq0fXi/3Ot4Wq/SXuHEnt9NszFCXXdYEPZv8DykTMYGctMcva7u7q7F0gw3zYeMAa24X7SsP5EoHwrcAsuZaHt2GdmnY+RVluoZo3312DxyK4z32lkn2wK6cAKuk2t+OJYH57WIvG7Imznv2BDPzvU6YwyMbIms5f7QaszWY896VlN/Oxi0b1In0t4db4t+nPopKSsBrTKYPiqlqcY9lJ6deHSLRry9+6hu7QjhWYU93kUL7b5MqUzCU1b9GEUFI9G7foam1mHY8nSEJbpM8d2vWXB8o+ctHBN/nyVBHul543OWoKeb+jyUB6Mgmfvf0W3cjKGp0wd6szzLA2FKHVMF6AvvdwJJ0QetbTRnpTh2eoFXQi2ysYmmIYAMW51kGSMi0jb3plxBw+7CILfJ86MPsOnNrdqUnoY62lGV2RJj0BBq8pD4jWKALoiAQ=
