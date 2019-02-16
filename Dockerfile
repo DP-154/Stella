@@ -8,8 +8,8 @@ RUN apt-get -y install python-opencv
 RUN apt-get -y install tesseract-ocr
 
 RUN pip3 install --upgrade pip
-RUN pip3 install pipenv --dev
-RUN pipenv install
+RUN pip3 install pipenv
+RUN pipenv install --dev
 RUN pipenv run pip freeze > requirements.txt                                   
 RUN pip3 install -r requirements.txt
 
