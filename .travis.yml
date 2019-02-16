@@ -15,6 +15,8 @@ notifications:
     on_failure: change
 deploy:
   provider: heroku
+  on: 
+    all_branches: true
   api_key:
     secure: TwrjVEYtiILANK8YkZZEEK6xSSkAwLbjr1DlkNod1W/Faw7TbeNV7h/ltQWfje2D8Z/PL4K/QLiTi5okAXwXn6Y4rJWg2NJVk07u1DIpkUjtxAwJstqca2weFRUCkiw6v/lh++9NTbFsFbW843anRtwSkdfPpKS3IwQTIBq2Iw/ZtzB34M1lVlrEfGSRW14qQmlIUtEBz9bMD2mkU3HmEtjUrlw5RXAhB0OgDsshdG5cxkqW7myrU+ZmJ3DFuJ4xebve7xIrAf7oBbzbbJWOJHqxr0Bi8TBzFpU9kSk1GcUYqVDCLKboR0+EQSQxBV/sbdxk5Cmt4ldkZGD2Kve9qglRGHlNiJDSql2ZE2Y0kQCTc8MFrWajx2f6BFLxpt+3vRZT52cfFSW+pBK2MULLdbTwstTkHGqoq8IAbHkbgbqrqlOIYMU4P/iYXof6TS1CmZcUGtuHkv4JG9pJnNGCCtYv36l0xg2eqti2ncpjqAkONwNPNiZweybhPhVBwYm7sKJCditUoNLyV3/Vz7ZYZuokJfC1IThhNNMdkrDrxBaFbp64txKv3JzOTo5L34YnnH2xexhcn84cKv2aHTG62FkO4005D16syS3ycO+Bg3NVafPAZN/DTXQkvJvyDCB4L1/zDdk9eKPurO+gAu2UZBmeZJ2qBXML98LPuuI/Ezg=
   app:
