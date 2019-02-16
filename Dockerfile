@@ -12,6 +12,7 @@ RUN pip3 install pipenv
 RUN pipenv install --dev
 RUN pipenv run pip freeze > requirements.txt                                   
 RUN pip3 install -r requirements.txt
+RUN pip3 install pytest-cov
 
 RUN pytest --cov=./tests/integration ./tests/integration
 
