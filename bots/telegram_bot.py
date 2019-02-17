@@ -8,7 +8,7 @@ from transport.data_provider import DropBoxDataProvider
 
 dbx_token = os.environ['DROPBOX_TOKEN']
 telegram_token = os.environ['TELEGRAM_TOKEN']
-port = os.environ['PORT']
+port = int(os.environ['PORT'])
 url_path = os.environ['URL_PATH']
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
