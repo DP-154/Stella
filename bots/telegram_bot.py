@@ -6,8 +6,10 @@ import json
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from transport.data_provider import DropBoxDataProvider
 
-dbx_token = os.environ.get('DROPBOX_TOKEN')
-telegram_token = os.environ.get('TELEGRAM_TOKEN')
+dbx_token = os.environ['DROPBOX_TOKEN']
+telegram_token = os.environ['TELEGRAM_TOKEN']
+port = os.environ['PORT']
+url_path = os.environ['URL_PATH']
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -59,10 +61,11 @@ def main():
     disp.add_handler(MessageHandler(Filters.document, send_file_dbx))
     disp.add_error_handler(error)
 
-    updater.start_polling()
-
+    updater.start_webhook(listen="0.0.0.0",
+                          port=port,
+                          url_path=telegram_token)
+    updater.bot.setWebhook(f'{url_path}/{telegram_token}')
     updater.idle()
-
 
 if __name__ == '__main__':
     main()
