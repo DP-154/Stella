@@ -14,7 +14,7 @@ def run_bot():
 @click.option('-b', '--runbot', is_flag=True, help="Run Telegram bot")
 def execute(runbot):
     if runbot:
-        runbot()
+        run_bot()
 
 
 if __name__ == '__main__':

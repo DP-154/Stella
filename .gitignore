@@ -105,3 +105,4 @@ venv.bak/
 # mypy
 .mypy_cache/
 asc_token.py
+.tests/test_data_provider.py

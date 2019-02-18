@@ -72,3 +72,7 @@ class DropBoxDataProvider(DataProviderBase):
 
     def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
+ 
+    def create_folder(self, dbx_folder) -> dropbox.files.RelocationResult:
+        return self.dbx.files_create_folder_v2(dbx_folder).metadata.path_lower
+
