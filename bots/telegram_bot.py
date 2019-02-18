@@ -1,8 +1,8 @@
 import os
-import sys
 import logging
 import requests
 import json
+from collections import deque
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from transport.data_provider import DropBoxDataProvider
 
@@ -17,7 +17,7 @@ dbx_provider = DropBoxDataProvider(dbx_token)
 
 def start(bot, update):
     update.message.reply_text(
-            "Hello! My name is Stella, and I will provide you with the actual information on prices of Ukrainian" \
+            "Hello! My name is Stella, and I will provide you with the actual information on prices of Ukrainian " \
             "gas stations.\n"
             "Simply type here a name of gas company you want to know about.\n"
             "Also, you can update my knowledge yourself by making and sending me photos of nearby gas stations` steles.\n"
@@ -25,9 +25,6 @@ def start(bot, update):
 
 def help(bot, update):
     update.message.reply_text("Need help? Still in development.")
-
-def echo(bot, update):
-    update.message.reply_text(update.message.text)
 
 def error(bot, update, error):
     logger.warning("Update {} caused error {}".format(update, error))
@@ -39,28 +36,20 @@ def send_file_dbx(bot, update):
     loaded_data = json.loads(new_file.text)
     file_path = loaded_data["result"]["file_path"]
 
-    down_file = requests.get("https://api.telegram.org/file/bot{}/{}".format(telegram_token, file_path))
+    down_path = "https://api.telegram.org/file/bot{}/{}".format(telegram_token, file_path)
     dirname, basename = os.path.split(file_path)
-    root_dir = os.path.splitdrive(sys.executable)[0]
-    new_path = os.path.join(root_dir + os.sep, "telegram_bot", dirname, basename)
     dbx_path = "/telegram_files/" + basename
+    dbx_provider.file_upload(down_path, dbx_path)
 
-    if not os.path.exists(os.path.dirname(new_path)):
-        os.makedirs(os.path.dirname(new_path))
-
-    with open(new_path, 'wb') as output:
-        output.write(down_file.content)
-    dbx_provider.file_upload(new_path, dbx_path)
+message_handlers = {Filters.document: send_file_dbx,}
+command_handlers = {"start": start, "help": help,}
 
 def main():
     updater = Updater(telegram_token)
     disp = updater.dispatcher
-
-    disp.add_handler(CommandHandler("start", start))
-    disp.add_handler(CommandHandler("help", help))
-    disp.add_handler(MessageHandler(Filters.document, send_file_dbx))
     disp.add_error_handler(error)
-
+    deque(map(lambda kv: (disp.add_handler(CommandHandler(kv[0], kv[1]))), command_handlers.items()))
+    deque(map(lambda kv: (disp.add_handler(MessageHandler(kv[0], kv[1]))), message_handlers.items()))
     updater.start_webhook(listen="0.0.0.0",
                           port=port,
                           url_path=telegram_token)
