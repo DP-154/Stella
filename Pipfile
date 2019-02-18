@@ -10,6 +10,12 @@ pytest = "*"
 requests = "*"
 dropbox = "*"
 click = "*"
+pytesseract = "*"
+pillow = "*"
+opencv-python = "*"
+python-telegram-bot = "*"
+sqlalchemy = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.7.2"
