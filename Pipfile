@@ -10,6 +10,11 @@ pytest = "*"
 requests = "*"
 dropbox = "*"
 click = "*"
+pytesseract = "*"
+pillow = "*"
+opencv-python = "*"
+python-telegram-bot = "*"
+sqlalchemy = "*"
 psycopg2 = "*"
 
 [requires]
