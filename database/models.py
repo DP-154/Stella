@@ -54,7 +54,7 @@ class Images(Base):
     is_recognized = Column('is_recognized', Boolean)
     created_at = Column('created_at', DateTime, default=datetime.datetime.utcnow())
     is_from_metadata = Column('is_from_metadata', Boolean)
-    created_by = Column('creted_by', String)
+    created_by = Column('created_by', String)
     user_id = Column(uuid, ForeignKey('user.id'))
     user_connections = relationship('User')
     price_connections = relationship('Price')
