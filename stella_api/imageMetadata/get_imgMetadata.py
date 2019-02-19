@@ -7,14 +7,12 @@ from pygeocoder import Geocoder
 from geopy.geocoders import Nominatim, GoogleV3
 import exifread
 from piexif import load, dump
-import json
 import googlemaps
 from googlemaps import places
 
 pic = 'someIMG7.jpg'
 
 gps_data = gpsphoto.getGPSData(pic)
-# print(gps_data)
 print(gps_data['Latitude'], gps_data['Longitude'])
 
 img = Image.open(pic)
@@ -28,7 +26,6 @@ for tag, value in exifDataRaw.items():
 #
 # lat = gps_data['Latitude']
 # long = gps_data['Longitude']
-
 
 # OKKO coord
 # lat = '48.452698'
