@@ -57,12 +57,16 @@ def main():
     disp.add_handler(CommandHandler("start", start))
     disp.add_handler(CommandHandler("help", help))
     disp.add_handler(MessageHandler(Filters.document, send_file_dbx))
+    disp.add_handler(MessageHandler(Filters.photo, send_file_dbx))
     disp.add_error_handler(error)
 
     updater.start_polling()
 
     updater.idle()
 
+    print(disp.handlers())
+
 
 if __name__ == '__main__':
     main()
+
