@@ -6,7 +6,6 @@ import pytest
 import tests.integration.required_data as con
 from transport.data_provider import DropBoxDataProvider
 
-
 ACS_TOKEN = os.environ['DROPBOX_TOKEN']
 
 
