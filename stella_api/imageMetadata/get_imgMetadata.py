@@ -8,8 +8,7 @@ from geopy.geocoders import Nominatim, GoogleV3
 import exifread
 from piexif import load, dump
 import json
-
-import googlemaps # использовать для google maps and google places
+import googlemaps
 from googlemaps import places
 
 pic = 'someIMG7.jpg'
@@ -30,52 +29,31 @@ for tag, value in exifDataRaw.items():
 # lat = gps_data['Latitude']
 # long = gps_data['Longitude']
 
-lat = '48.452698'
-long = '35.077502'
-
-gm_client = googlemaps.Client(os.environ['api_google_key'])
-gmap = places.places_nearby(client=gm_client, location={'lat': '48.453215', 'lng': '35.076644'}, radius=25)
-
-
-y = gmap['results']
-
-# print(y)
-
-
-# for i in gmap['results']:
-#     for j in i:
-#         print(j)
-
-for i in range(len(y)):
-    if 'gas_station' in y[i]['types']:
-        print(y[i]['name'])
-    # print(y[i]['name'])
-    # print(y[i]['types'])
-
-
-
-
-# print(o.['result'])
-
-
-# pprint(gmap.items)
 
 # OKKO coord
 # lat = '48.452698'
 # long = '35.077502'
 
-# neftek coord 48.453215, 35.076644
+# neftek coord
+# lat = '48.453215'
+# long = '35.076644'
 
+lat = '48.453215'
+long = '35.076644'
 
-# geo = GoogleV3(os.environ['api_google_key'])
-# res = str(geo.geocode(f"{lat}, {long}"))
-# print(res)
-#
-# street = res.split(',')
-# print(f"{street[0]}, {street[1]}, {street[2]}")
-#
-# geolocator = Nominatim(user_agent="SStetsPythonGooleMap")
-# location = geolocator.geocode(f"{street[0]}, {street[1]}, {street[2]}")
-#
-# print(location.address)
+gm_client = googlemaps.Client(os.environ['api_google_key'])
+gmap = places.places_nearby(client=gm_client, location={'lat': '48.453215', 'lng': '35.076644'}, radius=25)
+res = gmap['results']
+
+for i in range(len(res)):
+    if 'gas_station' in res[i]['types']:
+        print(res[i]['name'])
+
+geo = GoogleV3(os.environ['api_google_key'])
+res = str(geo.geocode(f"{lat}, {long}"))
+street = res.split(',')
+
+geolocator = Nominatim(user_agent="SStetsPythonGooleMap")
+location = geolocator.geocode(f"{street[0]}, {street[1]}, {street[2]}")
+print(location.address)
 

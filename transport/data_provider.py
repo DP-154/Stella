@@ -67,12 +67,19 @@ class DropBoxDataProvider(DataProviderBase):
         return self.dbx.files_download_to_file(local_file, dbx_file).path_lower
 
     def file_upload(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
-        with open(local_file, 'rb') as f:
-            return self.dbx.files_upload(f.read(), dbx_file).path_lower
+        if isinstance(local_file, str):
+            if local_file.startswith("https://"):
+                url_result = self.dbx.files_save_url(dbx_file, local_file)
+                if url_result.is_complete():
+                    return url_result.get_complete().path_lower
+            else:
+                with open(local_file, 'rb') as f:
+                    return self.dbx.files_upload(f.read(), dbx_file).path_lower
+        else:
+            return self.dbx.files_upload(local_file.read(), dbx_file).path_lower
 
     def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
- 
+    
     def create_folder(self, dbx_folder) -> dropbox.files.RelocationResult:
         return self.dbx.files_create_folder_v2(dbx_folder).metadata.path_lower
-
