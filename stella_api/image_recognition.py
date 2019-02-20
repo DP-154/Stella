@@ -82,7 +82,7 @@ def digit_to_price(img_path):
 
 #TEST_USER_IMG = 'https://www.dropbox.com/s/5ffvbhe77koxjj3/file_67.png?dl=1'
 TEST_USER_IMG = 'https://www.dropbox.com/s/hopv5vbeihmjdkp/price2.png?dl=1'
-
+#TEST_USER_IMG = 'price.png'
 print(digit_to_price(TEST_USER_IMG))
 
 
