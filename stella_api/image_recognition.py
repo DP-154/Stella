@@ -2,10 +2,11 @@ import cv2
 import numpy as np
 from keras.models import load_model
 from matplotlib import pyplot as plt
+from skimage import io
 
 model = load_model('my_model.h5')
 
-class Digit_detection:
+class DigitDetection:
 
     def __init__(self, img_file):
         self.img_file = img_file
@@ -29,7 +30,7 @@ class Digit_detection:
 
     def detection_roi_user_img(self):
 
-        im = cv2.imread(self.img_file)
+        im = io.imread(self.img_file)
         imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         plt.imshow(imgray)
         kernel = np.ones((5, 5), np.uint8)
@@ -46,7 +47,7 @@ class Digit_detection:
 
     def crop_images(self,  roi):
 
-        img = cv2.imread(self)
+        img = io.imread(self)
         y = roi[1]
         x = roi[0]
         h = roi[1] + roi[3]
@@ -54,44 +55,35 @@ class Digit_detection:
         crop_img = img[y:h, x:w]
         return crop_img
 
-if __name__ == '__main__':
+def digit_recognition(TEST_USER_IMG, roi):
+    crop_image1 = DigitDetection.crop_images(TEST_USER_IMG,roi)
+    img = cv2.cvtColor(crop_image1, cv2.COLOR_BGR2GRAY)
+    img = cv2.resize(img, (28, 28))
+    img = img[np.newaxis]
+    img = img.reshape(img.shape[0], 28, 28, 1)
+    return(np.argmax(model.predict(img)))
 
-    TEST_USER_IMG = '/home/kerch007/Stella/stella_api/price3.png'
 
-    image1 = Digit_detection(TEST_USER_IMG)
+
+def digit_to_price(img_path):
+
+    image1 = DigitDetection(img_path)
     roi = image1.detection_roi_user_img()
     roi = sorted(roi, key = lambda x: int(x[0]))
-
-
-    def digit_recognition(TEST_USER_IMG, roi):
-        crop_image1 = Digit_detection.crop_images(TEST_USER_IMG,roi)
-        img = cv2.cvtColor(crop_image1, cv2.COLOR_BGR2GRAY)
-        img = cv2.resize(img, (28, 28))
-        img = img[np.newaxis]
-        img = img.reshape(img.shape[0], 28, 28, 1)
-        return(np.argmax(model.predict(img)))
-
     digit = []
     for i in range(len(roi)):
-        digit.append(digit_recognition(TEST_USER_IMG,roi[i]))
-
-    print(digit)
-
+        digit.append(digit_recognition(img_path,roi[i]))
 
     brend = ''.join(map(str, digit[0:2]))
     grn = ''.join(map(str, digit[2:4]))
     coop = ''.join(map(str, digit[4:6]))
-
-    print(brend, grn + '.' + coop)
-
-    plt.imshow(cv2.imread(TEST_USER_IMG))
-    plt.show()
+    return (brend, grn + '.' + coop)
 
 
+#TEST_USER_IMG = 'https://www.dropbox.com/s/5ffvbhe77koxjj3/file_67.png?dl=1'
+TEST_USER_IMG = 'https://www.dropbox.com/s/hopv5vbeihmjdkp/price2.png?dl=1'
 
-
-
-
+print(digit_to_price(TEST_USER_IMG))
 
 
 
