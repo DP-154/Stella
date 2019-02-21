@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 dbx_provider = DropBoxDataProvider(dbx_token)
 
+
 def start(bot, update):
     update.message.reply_text(
             "Hello! My name is Stella, and I will provide you with the actual information on prices of Ukrainian " \
@@ -23,11 +24,14 @@ def start(bot, update):
             "Also, you can update my knowledge yourself by making and sending me photos of nearby gas stations` steles.\n"
             "To start, simply type 'start'. If you want to know more, type 'help'.")
 
+
 def help(bot, update):
     update.message.reply_text("Need help? Still in development.")
 
+
 def error(bot, update, error):
     logger.warning("Update {} caused error {}".format(update, error))
+
 
 def send_file_dbx(bot, update):
     file_id = update.message.document.file_id
@@ -41,8 +45,10 @@ def send_file_dbx(bot, update):
     dbx_path = "/telegram_files/" + basename
     dbx_provider.file_upload(down_path, dbx_path)
 
-message_handlers = {Filters.document: send_file_dbx,}
-command_handlers = {"start": start, "help": help,}
+
+message_handlers = {Filters.document: send_file_dbx, }
+command_handlers = {"start": start, "help": help, }
+
 
 def main():
     updater = Updater(telegram_token)
@@ -55,6 +61,7 @@ def main():
                           url_path=telegram_token)
     updater.bot.setWebhook(f'{url_path}/{telegram_token}')
     updater.idle()
+
 
 if __name__ == '__main__':
     main()

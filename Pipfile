@@ -16,6 +16,10 @@ opencv-python = "*"
 python-telegram-bot = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+scipy = "*"
+numpy = "*"
+cv2 = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.7.2"
