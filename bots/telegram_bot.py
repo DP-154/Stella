@@ -58,10 +58,6 @@ def get_user_location(bot, update):
     print(new_location)
     return new_location
 
-def retrieve_sql_data(bot, update):
-    new_connection = connect_db()
-    new_cursor = new_connection.cursor()
-
 message_handlers = {Filters.document: send_file_dbx, Filters.location: get_user_location,}
 command_handlers = {"start": start, "help": help,}
 
