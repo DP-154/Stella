@@ -62,7 +62,7 @@ def query_avg_all_stations(days=1) -> str:
 
     pricelist = "Gas prices for last {} days:\n".format(days)
     for row in result:
-        pricelist = pricelist + "{}: {}\n".format(row.fuel_type, row.price)
+        pricelist = pricelist + "{}: {}\n".format(row.fuel_type, row.average_price)
     new_session.close()
     return pricelist
 
