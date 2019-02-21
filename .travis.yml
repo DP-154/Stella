@@ -8,8 +8,8 @@ install:
 - pip install pytest-cov
 matrix:
   include:
-  - script: pytest --cov=./tests/unit ./tests/unit
-  - script: pytest --cov=./tests/integration ./tests/integration
+  - script: pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/unit
+  - script: --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/integration
 notifications:
   email:
     on_success: never
