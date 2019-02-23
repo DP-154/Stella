@@ -13,7 +13,7 @@ class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
-    user_name = Column('user_name', String)
+    tg_id = Column('tg_id', Integer)
     date_of_registration = Column('date_of_registration', DateTime, default=datetime.datetime.utcnow())
     images_connections = relationship('Images')
 
@@ -26,25 +26,24 @@ class FuelCompany(Base):
     gas_station_connection = relationship('GasStation')
 
 
-
 class Fuel(Base):
     __tablename__ = 'fuel'
 
     id = Column(Integer, primary_key=True)
     fuel_type = Column('fuel_type', String, nullable=False)
     is_premium = Column('is_premium', Boolean)
-    price_connections = relationship('Price')
+    price_connections = relationship('Price', backref='fuel')
 
 
 class GasStation(Base):
     __tablename__ = 'gas_station'
 
     id = Column(Integer, primary_key=True)
-    gas_station_name = Column('gas_station_name', String)
-    gps_location = Column('gps_location', String)
-    fuel_company_id = Column(Integer, ForeignKey('fuel_company.id'))
+    address = Column('address', String)
+    fuel_company_id = Column(Integer, ForeignKey('fuel_company.id',
+                                                 ondelete='CASCADE'))
     fuel_company_connection = relationship('FuelCompany')
-    price_connections = relationship('Price')
+    price_connections = relationship('Price', backref='gas_station')
 
 
 class Images(Base):
@@ -55,10 +54,9 @@ class Images(Base):
     is_recognized = Column('is_recognized', Boolean)
     created_at = Column('created_at', DateTime, default=datetime.datetime.utcnow())
     is_from_metadata = Column('is_from_metadata', Boolean)
-    created_by = Column('created_by', String)
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'))
     user_connections = relationship('User')
-    price_connections = relationship('Price')
+    price_connections = relationship('Price', backref='image')
 
 
 class Price(Base):
@@ -67,7 +65,7 @@ class Price(Base):
     id = Column(Integer, primary_key=True)
     price = Column('price', DECIMAL(precision=2), nullable=False)
     date_of_price = Column('date_of_price', DateTime, default=datetime.datetime.utcnow())
-    gas_station_id = Column(Integer, ForeignKey('gas_station.id'))
-    fuel_id = Column(Integer, ForeignKey('fuel.id'))
-    images_id = Column(Integer, ForeignKey('images.id'))
-
+    gas_station_id = Column(Integer, ForeignKey('gas_station.id',
+                                                ondelete='CASCADE'))
+    fuel_id = Column(Integer, ForeignKey('fuel.id', ondelete='CASCADE'))
+    images_id = Column(Integer, ForeignKey('images.id', ondelete='CASCADE'))

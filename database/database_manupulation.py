@@ -26,6 +26,7 @@ def truncate_tables(*table_names):
         if to_delete:
             session.execute(to_delete.__table__.delete())
     session.commit()
+    session.close()
 
 
 def truncate_all_tables():
@@ -33,6 +34,7 @@ def truncate_all_tables():
     for table in (User, FuelCompany, Fuel, GasStation, Images, Price):
         session.execute(table.__table__.delete())
     session.commit()
+    session.close()
 
 
 def drop_tables(*table_names):
