@@ -16,6 +16,20 @@ opencv-python = "*"
 python-telegram-bot = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+googlemaps = "*"
+gpsphoto = "*"
+geopy = "*"
+piexif = "*"
+ExifRead = "*"
+matplotlib = "*"
+numpy = "*"
+requests = "*"
+scipy = "*"
+opencv-python = "*"
+
+
 
 [requires]
 python_version = "3.7.2"
+
+
