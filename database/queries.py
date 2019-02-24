@@ -62,8 +62,8 @@ def update_image(session, image, recognition_result, location_result):
     """
 
     if not recognition_result.is_recognized:
-        # return image as is
-        return image
+        # don't change image
+        return
 
     image.is_recognized = recognition_result.is_recognized
     image.is_from_metadata = location_result.is_from_metadata
