@@ -112,7 +112,3 @@ def query_by_station_min_price(fuel_name, days=None):
                                                                row.fuel_type, row.price, row.date_of_price)
     new_session.close()
     return pricelist
-
-
-if __name__ == '__main__':
-    print(query_avg_all_stations(1))
