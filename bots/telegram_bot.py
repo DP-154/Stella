@@ -48,6 +48,7 @@ def send_file_dbx(bot, update):
     dbx_path = "/telegram_files/" + basename
     dbx_provider.file_upload(down_path, dbx_path)
     request_user_location(bot, update)
+    bot.send_message(chat_id=update.message.chat_id, text=down_path)
 
     user_location = get_user_location(bot, update)
     tg_id = update.message.from_user.id

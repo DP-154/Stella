@@ -31,7 +31,6 @@ class FuelCompany(Base):
     def __init__(self, fuel_company_name):
         self.fuel_company_name = fuel_company_name
 
-
 class Fuel(Base):
     __tablename__ = 'fuel'
 
@@ -54,7 +53,7 @@ class GasStation(Base):
                                                  ondelete='CASCADE'))
     fuel_company_connection = relationship('FuelCompany')
     price_connections = relationship('Price', backref='gas_station')
-
+    
     def __init__(self, address, fuel_company_id):
         self.address = address
         self.fuel_company_id = fuel_company_id
@@ -90,7 +89,7 @@ class Price(Base):
                                                 ondelete='CASCADE'))
     fuel_id = Column(Integer, ForeignKey('fuel.id', ondelete='CASCADE'))
     images_id = Column(Integer, ForeignKey('images.id', ondelete='CASCADE'))
-
+    
     def __init__(self, price, gas_station, fuel, image, date_of_price=datetime.datetime.utcnow()):
         self.price = price
         self.date_of_price = date_of_price
