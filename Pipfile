@@ -16,6 +16,10 @@ opencv-python = "*"
 python-telegram-bot = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+scipy = "*"
+numpy = "*"
+cv2 = "*"
+matplotlib = "*"
 Faker = "*"
 
 [requires]
