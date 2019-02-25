@@ -3,26 +3,24 @@ from scipy.misc.pilutil import imresize
 import cv2
 from matplotlib import pyplot as plt
 
-
 DIGIT_WIDTH = 10
 DIGIT_HEIGHT = 20
 IMG_HEIGHT = 28
 IMG_WIDTH = 28
-CLASS_N = 10 # 0-9
+CLASS_N = 10  # 0-9
 
 DIGITS_LOOKUP = {
-	(1, 1, 1, 0, 1, 1, 1): 0,
-	(0, 0, 1, 0, 0, 1, 0): 1,
-	(1, 0, 1, 1, 1, 1, 0): 2,
-	(1, 0, 1, 1, 0, 1, 1): 3,
-	(0, 1, 1, 1, 0, 1, 0): 4,
-	(1, 1, 0, 1, 0, 1, 1): 5,
-	(1, 1, 0, 1, 1, 1, 1): 6,
-	(1, 0, 1, 0, 0, 1, 0): 7,
-	(1, 1, 1, 1, 1, 1, 1): 8,
-	(1, 1, 1, 1, 0, 1, 1): 9
+    (1, 1, 1, 0, 1, 1, 1): 0,
+    (0, 0, 1, 0, 0, 1, 0): 1,
+    (1, 0, 1, 1, 1, 1, 0): 2,
+    (1, 0, 1, 1, 0, 1, 1): 3,
+    (0, 1, 1, 1, 0, 1, 0): 4,
+    (1, 1, 0, 1, 0, 1, 1): 5,
+    (1, 1, 0, 1, 1, 1, 1): 6,
+    (1, 0, 1, 0, 0, 1, 0): 7,
+    (1, 1, 1, 1, 1, 1, 1): 8,
+    (1, 1, 1, 1, 0, 1, 1): 9
 }
-
 
 
 class Digit_detection:
@@ -45,7 +43,6 @@ class Digit_detection:
                 final_bounding_rectangles.append(r)
 
         return final_bounding_rectangles
-
 
     def detection_roi_user_img(self):
 
@@ -73,8 +70,6 @@ class Digit_detection:
         return digits_rectangles
 
 
-
-
 def crop_images(img_file, roi):
     img = cv2.imread(img_file)
     y = roi[1]
@@ -84,9 +79,10 @@ def crop_images(img_file, roi):
     crop_img = img[y:h, x:w]
     return crop_img
 
+
 def segments_detection(img_file, roi):
     (x, y, w, h) = roi
-    (roiH, roiW,z) = img_file.shape
+    (roiH, roiW, z) = img_file.shape
     (dW, dH) = (int(roiW * 0.4), int(roiH * 0.4))
     dHC = int(roiH * 0.05)
 
@@ -98,19 +94,17 @@ def segments_detection(img_file, roi):
         ((0, h // 2), (dW, h)),  # bottom-left
         ((w - dW, h // 2), (w, h)),  # bottom-right
         ((0, h - dH), (w, h))  # bottom
-        ]
+    ]
     on = [0] * len(segments)
     return (segments)
 
 
 def recognize_digit(img_file, roi):
-
-
     on = [0] * 7
     segments = segments_detection(img_file, roi)
     for (i, ((xA, yA), (xB, yB))) in enumerate(segments):
         segROI = img_file[yA:yB, xA:xB]
-        segROI = cv2.cvtColor(segROI,cv2.COLOR_BGR2GRAY)
+        segROI = cv2.cvtColor(segROI, cv2.COLOR_BGR2GRAY)
         total = cv2.countNonZero(segROI)
         area = (xB - xA) * (yB - yA)
 
@@ -121,14 +115,12 @@ def recognize_digit(img_file, roi):
 
 
 if __name__ == '__main__':
-
     TEST_USER_IMG = '/home/kerch007/Stella/stella_api/test_image.png'
     image1 = Digit_detection(TEST_USER_IMG)
     roi = image1.detection_roi_user_img()
     print(roi[2])
 
-
-    crop_image1 = crop_images(TEST_USER_IMG,roi[12])
+    crop_image1 = crop_images(TEST_USER_IMG, roi[12])
     import pytesseract
 
     plt.imshow(crop_image1)
@@ -136,15 +128,3 @@ if __name__ == '__main__':
 
     data = pytesseract.image_to_string(crop_image1, config='--psm 8 --oem 3 tessedit_char_whitelist=0123456789 ')
     print(data)
-
-
-
-
-
-
-
-
-
-
-
-
