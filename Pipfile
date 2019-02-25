@@ -20,6 +20,7 @@ scipy = "*"
 numpy = "*"
 cv2 = "*"
 matplotlib = "*"
+Faker = "*"
 
 [requires]
 python_version = "3.7.2"
