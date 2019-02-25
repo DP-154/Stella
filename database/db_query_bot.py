@@ -40,7 +40,7 @@ def find_timedelta(days) -> date:
     time_period = date.today() - new_delta
     return time_period
 
-def get_date_subquery(days, session):
+def get_date_subquery(days, session) -> subquery:
     if days is not None:
         days = day_to_num(days)
         subquery = session.query(Price.date_of_price).filter(Price.date_of_price == days
@@ -49,7 +49,7 @@ def get_date_subquery(days, session):
         subquery = session.query(func.max(Price.date_of_price).label("date_of_price")).subquery()
     return subquery
 
-def min_price_subquery(day, session):
+def min_price_subquery(day, session) -> subquery:
     subquery_date = get_date_subquery(day, session)
     subquery = session.query(Price.price, Price.date_of_price,Price.fuel_id,
                              func.rank().over(partition_by=Price.fuel_id, order_by=Price.price
@@ -93,7 +93,7 @@ def query_avg_all_stations(days=None) -> str:
     return pricelist
 
 
-def query_by_station_min_price(fuel_name, days=None):
+def query_by_station_min_price(fuel_name, days=None) -> str:
     new_session = Session()
     subquery_price = min_price_subquery(days, new_session)
     subquery_date = get_date_subquery(days, new_session)
