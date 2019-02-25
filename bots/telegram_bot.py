@@ -7,6 +7,7 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from transport.data_provider import DropBoxDataProvider
 from database.db_connection import connect_db
+from stella_api.service_data import store_bot_data
 
 dbx_token = os.environ['DROPBOX_TOKEN']
 telegram_token = os.environ['TELEGRAM_TOKEN']
@@ -20,7 +21,7 @@ dbx_provider = DropBoxDataProvider(dbx_token)
 
 def start(bot, update):
     update.message.reply_text(
-        "Hello! My name is Stella, and I will provide you with the actual information on prices of Ukrainian \n"
+        "Hello! My name is Stella, and I will provide you with the actual information on prices of Ukrainian " \
         "gas stations.\n"
         "Simply type here a name of gas company you want to know about.\n"
         "Also, you can update my knowledge yourself by making and sending me photos of nearby gas stations` steles.\n"
@@ -47,6 +48,13 @@ def send_file_dbx(bot, update):
     dbx_path = "/telegram_files/" + basename
     dbx_provider.file_upload(down_path, dbx_path)
     request_user_location(bot, update)
+    bot.send_message(chat_id=update.message.chat_id, text=down_path)
+
+    user_location = get_user_location(bot, update)
+    tg_id = update.message.from_user.id
+    reply_store = store_bot_data(tg_id, dbx_path, user_location.latitude, user_location.longitude)
+    bot.send_message(chat_id=chat_id, text=reply_store)
+
 
 
 def request_user_location(bot, update):
