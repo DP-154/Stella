@@ -8,8 +8,8 @@ from database.models import User, FuelCompany, GasStation, Fuel, Images
 from stella_api.image_recognition import digit_to_price
 
 
-def store_bot_data(tg_id, image_link, new_location):
-    md_from_coordinates = MetaDataFromCoordinates(new_location.latitude, new_location.longitude)
+def store_bot_data(tg_id, image_link, latitude, longitude):
+    md_from_coordinates = MetaDataFromCoordinates(latitude, longitude)
 
     company_name = md_from_coordinates.get_name()
 
