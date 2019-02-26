@@ -26,7 +26,6 @@ class DigitDetection:
 
         return final_bounding_rectangles
 
-
     def detection_roi_user_img(self):
 
         im = io.imread(self.img_file)
@@ -79,10 +78,3 @@ def digit_to_price(img_path):
         return (True,brend, grn + '.' + coop)
     else:
         return (False, None, None)
-
-
-
-
-
-
-
