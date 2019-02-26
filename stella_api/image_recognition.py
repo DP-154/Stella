@@ -5,7 +5,7 @@ from skimage import io
 
 model = load_model('my_model.h5')
 
-class DigitDetection:
+class Digit_detection:
 
     def __init__(self, img_file):
         self.img_file = img_file
@@ -52,29 +52,19 @@ class DigitDetection:
         crop_img = img[y:h, x:w]
         return crop_img
 
-def digit_recognition(TEST_USER_IMG, roi):
-    crop_image1 = DigitDetection.crop_images(TEST_USER_IMG,roi)
-    img = cv2.cvtColor(crop_image1, cv2.COLOR_BGR2GRAY)
-    img = cv2.resize(img, (28, 28))
-    img = img[np.newaxis]
-    img = img.reshape(img.shape[0], 28, 28, 1)
-    return(np.argmax(model.predict(img)))
 
+    def digit_to_price(img_path):
+        image1 = DigitDetection(img_path)
+        roi = image1.detection_roi_user_img()
+        roi = sorted(roi, key = lambda x: int(x[0]))
+        if len(roi) == 6:
+            digit = []
+            for i in range(len(roi)):
+                digit.append(digit_recognition(img_path,roi[i]))
 
-
-def digit_to_price(img_path):
-
-    image1 = DigitDetection(img_path)
-    roi = image1.detection_roi_user_img()
-    roi = sorted(roi, key = lambda x: int(x[0]))
-    if len(roi) == 6:
-        digit = []
-        for i in range(len(roi)):
-            digit.append(digit_recognition(img_path,roi[i]))
-
-        brend = ''.join(map(str, digit[0:2]))
-        grn = ''.join(map(str, digit[2:4]))
-        coop = ''.join(map(str, digit[4:6]))
-        return (True,brend, grn + '.' + coop)
-    else:
-        return (False, None, None)
+            brend = ''.join(map(str, digit[0:2]))
+            grn = ''.join(map(str, digit[2:4]))
+            coop = ''.join(map(str, digit[4:6]))
+            return (True,brend, grn + '.' + coop)
+        else:
+            return (False, None, None)
