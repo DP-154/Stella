@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from keras.models import load_model
-from matplotlib import pyplot as plt
 from skimage import io
 
 model = load_model('my_model.h5')
@@ -32,7 +31,6 @@ class DigitDetection:
 
         im = io.imread(self.img_file)
         imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        plt.imshow(imgray)
         kernel = np.ones((5, 5), np.uint8)
 
         ret, thresh = cv2.threshold(imgray, 127, 255, 0)
@@ -70,20 +68,20 @@ def digit_to_price(img_path):
     image1 = DigitDetection(img_path)
     roi = image1.detection_roi_user_img()
     roi = sorted(roi, key = lambda x: int(x[0]))
-    digit = []
-    for i in range(len(roi)):
-        digit.append(digit_recognition(img_path,roi[i]))
+    if len(roi) == 6:
+        digit = []
+        for i in range(len(roi)):
+            digit.append(digit_recognition(img_path,roi[i]))
 
-    brend = ''.join(map(str, digit[0:2]))
-    grn = ''.join(map(str, digit[2:4]))
-    coop = ''.join(map(str, digit[4:6]))
-    return (brend, grn + '.' + coop)
+        brend = ''.join(map(str, digit[0:2]))
+        grn = ''.join(map(str, digit[2:4]))
+        coop = ''.join(map(str, digit[4:6]))
+        return (True,brend, grn + '.' + coop)
+    else:
+        return (False, None, None)
 
 
 
-TEST_USER_IMG = 'https://www.dropbox.com/s/hopv5vbeihmjdkp/price2.png?dl=1'
-
-print(digit_to_price(TEST_USER_IMG))
 
 
 
