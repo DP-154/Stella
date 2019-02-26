@@ -16,7 +16,14 @@ opencv-python = "*"
 python-telegram-bot = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+googlemaps = "*"
+gpsphoto = "*"
+geopy = "*"
+piexif = "*"
+ExifRead = "*"
+requests = "*"
 scipy = "*"
+opencv-python = "*"
 numpy = "*"
 cv2 = "*"
 matplotlib = "*"
@@ -24,3 +31,5 @@ Faker = "*"
 
 [requires]
 python_version = "3.7.2"
+
+

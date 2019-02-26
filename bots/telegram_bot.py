@@ -28,7 +28,6 @@ def start(bot, update):
         "To start, simply type 'start'. If you want to know more, type 'help'.")
 
 
-
 def help(bot, update):
     update.message.reply_text("Need help? Still in development.")
 
@@ -55,6 +54,7 @@ def send_file_dbx(bot, update):
     tg_id = update.message.from_user.id
     reply_store = store_bot_data(tg_id, dbx_path, user_location.latitude, user_location.longitude)
     bot.send_message(chat_id=chat_id, text=reply_store)
+
 
 
 def request_user_location(bot, update):
