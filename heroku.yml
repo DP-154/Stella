@@ -3,4 +3,8 @@ setup:
     - plan: heroku-postgresql
 build:
   docker:
+<<<<<<< HEAD
     web: Dockerfile
+=======
+    web: Dockerfile
+>>>>>>> a75ad5ffbbd826e99d2e4a26e204335d91a52837

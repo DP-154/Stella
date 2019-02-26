@@ -1,7 +1,20 @@
+<<<<<<< HEAD
 import psycopg2
 
 from config import DatabaseConfig
 
+=======
+import os
+
+import psycopg2
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker as SessionMaker
+
+#from config import DatabaseConfig
+
+engine = create_engine(os.environ['DATABASE_URL'], echo=True)
+session_maker = SessionMaker(bind=engine)
+>>>>>>> a75ad5ffbbd826e99d2e4a26e204335d91a52837
 
 def connect_db():
     db_conf = DatabaseConfig()
