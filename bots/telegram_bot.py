@@ -53,7 +53,7 @@ def send_file_dbx(bot, update):
     user_location = get_user_location(bot, update)
     tg_id = update.message.from_user.id
     reply_store = store_bot_data(tg_id, dbx_path, user_location.latitude, user_location.longitude)
-    bot.send_message(chat_id=chat_id, text=reply_store)
+    bot.send_message(chat_id=update.message.chat_id, text=reply_store)
 
 
 
