@@ -105,14 +105,10 @@ def send_file_dbx(bot, update):
     dirname, basename = os.path.split(file_path)
     dbx_path = "/telegram_files/" + basename
     dbx_provider.file_upload(down_path, dbx_path)
+    global image_link
+    image_link = dbx_path
     request_user_location(bot, update)
     bot.send_message(chat_id=update.message.chat_id, text=down_path)
-
-    user_location = get_user_location(bot, update)
-    tg_id = update.message.from_user.id
-    reply_store = store_bot_data(tg_id, dbx_path, user_location.latitude, user_location.longitude)
-    bot.send_message(chat_id=chat_id, text=reply_store)
-
 
 
 def request_user_location(bot, update):
@@ -127,7 +123,9 @@ def get_user_location(bot, update):
     new_location = update.message.location
     chat_id = update.message.chat_id
     bot.send_message(chat_id=chat_id, text="Thanks!", reply_markup=ReplyKeyboardRemove())
-    print(new_location)
+    tg_id = update.message.from_user.id
+    reply_store = store_bot_data(tg_id, image_link, new_location.latitude, new_location.longitude)
+    bot.send_message(chat_id=update.message.chat_id, text=reply_store)
     return new_location
 
 
