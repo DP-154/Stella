@@ -110,6 +110,10 @@ def send_file_dbx(bot, update):
     request_user_location(bot, update)
     bot.send_message(chat_id=update.message.chat_id, text=down_path)
 
+    user_location = get_user_location(bot, update)
+    tg_id = update.message.from_user.id
+    reply_store = store_bot_data(tg_id, dbx_path, user_location.latitude, user_location.longitude)
+    bot.send_message(chat_id=chat_id, text=reply_store)
 
 def request_user_location(bot, update):
     chat_id = update.message.chat_id
@@ -167,7 +171,6 @@ def main():
                           url_path=telegram_token)
     updater.bot.setWebhook(f'{url_path}/{telegram_token}')
     updater.idle()
-
 
 if __name__ == '__main__':
     main()
