@@ -35,5 +35,5 @@ def store_bot_data(tg_id, image_link, latitude, longitude):
         db_store_recognized(session, stored_data['image'], rr, lr)
     else:
         return "price {} is not recognized".format(recognized_price_list[1])
-
+    session.close()
     return 'Ok'
