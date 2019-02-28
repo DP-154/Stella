@@ -1,0 +1,13 @@
+python-telegram-bot
+requests
+sqlalchemy
+psycopg2
+numpy
+matplotlib
+scipy
+opencv-python
+pytest
+dropbox
+click
+geopy
+googlemaps
