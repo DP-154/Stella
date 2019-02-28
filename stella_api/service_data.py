@@ -35,7 +35,7 @@ def store_bot_data(tg_id, image_link, latitude, longitude):
     session = session_maker()
     stored_data = db_store_start(session, tg_id, image_link, company_name, address)
 
-    is_recognized, rec_fuel_type, price = digit_to_price(url)
+    is_recognized, rec_fuel_type, price = digit_to_price(image_link)
     if is_recognized:
         is_premium = TMP_IS_PREMIUM
         fuel = db_get_fuel(session, rec_fuel_type, is_premium)
