@@ -11,8 +11,6 @@ TMP_IS_PREMIUM = False
 TMP_IS_RECOGNIZED = True
 TMP_IS_FROM_METADATA = False
 
-url = 'https://api.telegram.org/file/bot722747893:AAFSkHEIgGW7xP01lRpNjVgnkF-Dk_8b5Rg/documents/file_25.png'
-
 
 def comany_and_address(lat, long):
     #md = MetaDataFromCoordinates(lat, long)
