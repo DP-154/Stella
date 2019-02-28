@@ -201,12 +201,11 @@ def main():
     #deque(map(lambda kv: (disp.add_handler(CommandHandler(kv[0], kv[1]))), command_handlers.items()))
     #deque(map(lambda kv: (disp.add_handler(MessageHandler(kv[0], kv[1]))), message_handlers.items()))
 
-    #updater.start_webhook(listen="0.0.0.0",
-    #                      port=port,
-    #                      url_path=telegram_token)
-    #updater.bot.setWebhook(f'{url_path}/{telegram_token}')
-    #updater.idle()
-    updater.start_polling()
+    updater.start_webhook(listen="0.0.0.0",
+                          port=port,
+                          url_path=telegram_token)
+    updater.bot.setWebhook(f'{url_path}/{telegram_token}')
+    updater.idle()
 
 
 if __name__ == '__main__':
