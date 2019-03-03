@@ -12,6 +12,8 @@ class User(Base):
     __tablename__ = 'user'
 
     id = Column(UUID(as_uuid=True), primary_key=True)
+    username = Column('username', String)
+    password_hash = Column('password_hash', String)
     tg_id = Column('tg_id', Integer)
     date_of_registration = Column('date_of_registration', DateTime, default=datetime.datetime.utcnow())
     images_connections = relationship('Images')
