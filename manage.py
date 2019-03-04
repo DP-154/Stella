@@ -1,13 +1,13 @@
-"""
-this file will manage main app and telegram bot
-"click" library will be used
-"""
 import click
+import click_repl
 
 
-@click.group()
-def cli():
-    pass
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
+    """Pleasantries CLI"""
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(repl)
 
 
 @cli.command()
@@ -99,7 +99,7 @@ def fake():
     companies = [get_or_create(session, FuelCompany, fuel_company_name=n)
                  for n in fuel_company_names]
 
-    fuel_marks = ['92', '98', '95']
+    fuel_marks = ['92', '98', '95', '80']
     fuels = [get_or_create(session, Fuel, fuel_type=f, is_premium=False)
              for f in fuel_marks]
 
@@ -127,5 +127,10 @@ def fake():
     session.commit()
 
 
+@cli.command()
+def repl():
+    click_repl.repl(click.get_current_context())
+
+
 if __name__ == '__main__':
-    cli()
+    cli(obj={})
