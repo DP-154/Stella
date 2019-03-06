@@ -5,7 +5,6 @@ import click_repl
 @click.group(invoke_without_command=True)
 @click.pass_context
 def cli(ctx):
-    """Pleasantries CLI"""
     if ctx.invoked_subcommand is None:
         ctx.invoke(repl)
 
@@ -13,7 +12,8 @@ def cli(ctx):
 @cli.command()
 @click.argument('what')
 @click.option('--deamon', is_flag=True)
-def run(what, deamon):
+@click.option('--local', is_flag=True)
+def run(what, deamon, local):
     """ application entry point """
     if what == 'bot':
         if deamon:
@@ -24,7 +24,7 @@ def run(what, deamon):
                              stderr=subprocess.STDOUT)
         else:
             from bots.telegram_bot import main
-            main()
+            main(local=local)
     else:
         print(f'option not recognized: {what}')
 
@@ -130,6 +130,16 @@ def fake():
 @cli.command()
 def repl():
     click_repl.repl(click.get_current_context())
+
+
+@cli.command()
+def help():
+    print('run - runs apllication\n'
+          'show_schema - describes database schema\n'
+          'create - creates table(s)\n'
+          'truncate - truncates table(s)\n'
+          'drop - drops table(s)\n'
+          'fake - fill database with fake records')
 
 
 if __name__ == '__main__':

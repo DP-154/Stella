@@ -12,8 +12,6 @@ from database.queries import (session_scope, list_fuel_company_names,
 
 dbx_token = os.environ['DROPBOX_TOKEN']
 telegram_token = os.environ['TELEGRAM_TOKEN']
-port = int(os.environ['PORT'])
-url_path = os.environ['URL_PATH']
 
 locations = dict()
 
@@ -171,7 +169,7 @@ message_handlers = {Filters.document: send_file_dbx, Filters.location: get_user_
 command_handlers = {"start": start, "help": help, }
 
 
-def main():
+def main(local=False):
     updater = Updater(telegram_token)
     disp = updater.dispatcher
     disp.add_error_handler(error)
@@ -201,11 +199,14 @@ def main():
     #deque(map(lambda kv: (disp.add_handler(CommandHandler(kv[0], kv[1]))), command_handlers.items()))
     #deque(map(lambda kv: (disp.add_handler(MessageHandler(kv[0], kv[1]))), message_handlers.items()))
 
-    updater.start_webhook(listen="0.0.0.0",
-                          port=port,
-                          url_path=telegram_token)
-    updater.bot.setWebhook(f'{url_path}/{telegram_token}')
-    updater.idle()
+    if local:
+        updater.start_polling()
+    else:
+        updater.start_webhook(listen="0.0.0.0",
+                              port=int(os.environ['PORT']),
+                              url_path=telegram_token)
+        updater.bot.setWebhook(f'{os.environ["URL_PATH"]}/{telegram_token}')
+        updater.idle()
 
 
 if __name__ == '__main__':
