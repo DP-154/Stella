@@ -169,7 +169,7 @@ message_handlers = {Filters.document: send_file_dbx, Filters.location: get_user_
 command_handlers = {"start": start, "help": help, }
 
 
-def main(local=False):
+def main(poll=True):
     updater = Updater(telegram_token)
     disp = updater.dispatcher
     disp.add_error_handler(error)
@@ -199,7 +199,7 @@ def main(local=False):
     #deque(map(lambda kv: (disp.add_handler(CommandHandler(kv[0], kv[1]))), command_handlers.items()))
     #deque(map(lambda kv: (disp.add_handler(MessageHandler(kv[0], kv[1]))), message_handlers.items()))
 
-    if local:
+    if poll:
         updater.start_polling()
     else:
         updater.start_webhook(listen="0.0.0.0",

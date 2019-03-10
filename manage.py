@@ -12,8 +12,7 @@ def cli(ctx):
 @cli.command()
 @click.argument('what')
 @click.option('--deamon', is_flag=True)
-@click.option('--local', is_flag=True)
-def run(what, deamon, local):
+def run(what, deamon):
     """ application entry point """
     if what == 'bot':
         if deamon:
@@ -24,7 +23,7 @@ def run(what, deamon, local):
                              stderr=subprocess.STDOUT)
         else:
             from bots.telegram_bot import main
-            main(local=local)
+            main()
     else:
         print(f'option not recognized: {what}')
 
