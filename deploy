@@ -1,0 +1,5 @@
+#!/bin/bash
+eval "$(ssh-agent -s)"
+chmod 600 ~/deploy_key
+ssh-add ~/deploy_key
+ssh -i ~/deploy_key -o "StrictHostKeyChecking no" mel@stella-app.northeurope.cloudapp.azure.com < script.sh
