@@ -20,6 +20,6 @@ before_deploy:
 - bash docker_push
 deploy:
   provider: script
-  script:  'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash deploy; fi'
+  script: bash deploy
   on:
     branch: dev
