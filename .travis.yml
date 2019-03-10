@@ -16,7 +16,7 @@ notifications:
     on_failure: change
 before_install:
 - openssl aes-256-cbc -K $encrypted_3256ad516826_key -iv $encrypted_3256ad516826_iv
-  -in deploy_key.enc -out ./deploy_key -d
+  -in deploy_key.enc -out ~/deploy_key -d
 before_deploy:
 - bash docker_push
 deploy:
