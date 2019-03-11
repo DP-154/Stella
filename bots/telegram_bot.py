@@ -1,23 +1,17 @@
 import os
 import logging
-import requests
-import json
+from collections import deque
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
-from transport.data_provider import DropBoxDataProvider
 from bots.mockbase import Database
-from stella_api.service_data import store_bot_data, comany_and_address
-from database.queries import (session_scope, list_fuel_company_names,
-                              acquire_gas_station)
+from stella_api.service_data import store_bot_data, upload_image_to_dbx
 
-dbx_token = os.environ['DROPBOX_TOKEN']
 telegram_token = os.environ['TELEGRAM_TOKEN']
 
 locations = dict()
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-dbx_provider = DropBoxDataProvider(dbx_token)
 
 db_object = Database()
 ACTION, CHOICE, CHOOSE_STATION, SENT_LOCATION = range(4)
@@ -111,36 +105,12 @@ def error(bot, update, error):
 def send_file_dbx(bot, update):
     # TODO move this to services
     file_id = update.message.document.file_id
-    chat_id = update.message.chat_id
-    new_file = requests.get("https://api.telegram.org/bot{}/getFile?file_id={}".format(telegram_token, file_id))
-    loaded_data = json.loads(new_file.text)
-    file_path = loaded_data["result"]["file_path"]
+    dbx_path = upload_image_to_dbx(file_id)
 
-    down_path = "https://api.telegram.org/file/bot{}/{}".format(telegram_token, file_path)
-    dirname, basename = os.path.split(file_path)
-    dbx_path = "/telegram_files/" + basename
-
-    #res = requests.get(down_path)
-    #binary_pic = res.content
-    #dbx_upload_path = dbx_provider.file_upload(down_path, dbx_path)
-    #file_path = 'files/image.png'
-    #print(dbx_path)
-    #local_file_path = dbx_provider.file_download(file_path, dbx_path)
-    #print(local_file_path)
-    #global image_link
-    #image_link = dbx_path
-    #bot.send_message(chat_id=update.message.chat_id, text=down_path)
-
-    tg_id = update.message.from_user.id
-    user_location = locations.get(tg_id)
-    if user_location:
-        reply_store = store_bot_data(tg_id,
-                                     down_path,
-                                     user_location['latitude'],
-                                     user_location['longitude'])
-        bot.send_message(chat_id=chat_id, text=reply_store)
-    else:
-        bot.send_message(chat_id=chat_id, text='Share your location first.')
+    global image_link
+    image_link = dbx_path
+    request_user_location(bot, update)
+    bot.send_message(chat_id=update.message.chat_id, text=dbx_path)
 
 
 def request_user_location(bot, update):
@@ -156,11 +126,6 @@ def get_user_location(bot, update):
     chat_id = update.message.chat_id
     bot.send_message(chat_id=chat_id, text="Thanks!", reply_markup=ReplyKeyboardRemove())
     tg_id = update.message.from_user.id
-    #reply_store = store_bot_data(tg_id,
-    #                             image_link,
-    #                             new_location['latitude'],
-    #                             new_location['longitude'])
-    #bot.send_message(chat_id=update.message.chat_id, text=reply_store)
     locations[tg_id] = dict(lat=new_location['latitude'], long=new_location['longitude'])
     print(locations)
 
@@ -195,9 +160,6 @@ def main(poll=True):
     disp.add_handler(CommandHandler("chose_station", help))
     disp.add_handler(MessageHandler(Filters.document, send_file_dbx))
     disp.add_handler(MessageHandler(Filters.photo, send_file_dbx))
-
-    #deque(map(lambda kv: (disp.add_handler(CommandHandler(kv[0], kv[1]))), command_handlers.items()))
-    #deque(map(lambda kv: (disp.add_handler(MessageHandler(kv[0], kv[1]))), message_handlers.items()))
 
     if poll:
         updater.start_polling()
