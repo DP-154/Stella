@@ -10,7 +10,7 @@ import pytest
 
 from decimal import Decimal
 
-TEST_CONNECT = 'postgresql://postgres:8F08zNeA@localhost:5432/stella1'
+TEST_CONNECT = 'postgresql://'
 
 engine = create_engine(TEST_CONNECT)
 SessionMaker = sessionmaker(bind=engine)

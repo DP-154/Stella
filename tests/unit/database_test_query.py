@@ -9,7 +9,7 @@ from database.database_manupulation import drop_all_tables, create_all, truncate
 from database.models import (User, FuelCompany, Fuel, GasStation, Images, Price)
 from database.queries import get_or_create
 
-TEST_CONNECT = 'postgresql://postgres:8F08zNeA@localhost:5432/stella1'
+TEST_CONNECT = 'postgresql://'
 
 engine = create_engine(TEST_CONNECT)
 SessionMaker = sessionmaker(bind=engine)
