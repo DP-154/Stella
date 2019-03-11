@@ -1,10 +1,6 @@
 from sqlalchemy.sql import func
 from database.db_connection import session_maker
 from database.models import FuelCompany, GasStation, Fuel, Price
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-# engine = create_engine('postgresql://postgres:1993golovko@127.0.0.1:5433/testdb')
-# Session = sessionmaker(bind=engine)
 Session = session_maker()
 
 
