@@ -8,7 +8,7 @@ app.register_blueprint(restful)
 app.register_blueprint(auth)
 
 login = LoginManager(app)
-login.login_view = 'login'
+login.login_view = 'sign_in'
 
 if __name__ == '__main__':
     app.run(debug=True)
