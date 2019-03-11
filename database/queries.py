@@ -1,7 +1,22 @@
 from operator import attrgetter
+from contextlib import contextmanager
 
+from .db_connection import session_maker
 from .models import (FuelCompany, GasStation, User, Images, Fuel,
                      Price)
+
+
+@contextmanager
+def session_scope():
+    session = session_maker()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
 
 
 def get_or_create(session, model, **kwargs):
