@@ -7,8 +7,6 @@ from bots.mockbase import Database
 from stella_api.service_data import store_bot_data, upload_image_to_dbx
 
 telegram_token = os.environ['TELEGRAM_TOKEN']
-port = int(os.environ['PORT'])
-url_path = os.environ['URL_PATH']
 
 locations = dict()
 
@@ -136,7 +134,7 @@ message_handlers = {Filters.document: send_file_dbx, Filters.location: get_user_
 command_handlers = {"start": start, "help": help, }
 
 
-def main():
+def main(poll=True):
     updater = Updater(telegram_token)
     disp = updater.dispatcher
     disp.add_error_handler(error)
@@ -163,11 +161,14 @@ def main():
     disp.add_handler(MessageHandler(Filters.document, send_file_dbx))
     disp.add_handler(MessageHandler(Filters.photo, send_file_dbx))
 
-    updater.start_webhook(listen="0.0.0.0",
-                          port=port,
-                          url_path=telegram_token)
-    updater.bot.setWebhook(f'{url_path}/{telegram_token}')
-    updater.idle()
+    if poll:
+        updater.start_polling()
+    else:
+        updater.start_webhook(listen="0.0.0.0",
+                              port=int(os.environ['PORT']),
+                              url_path=telegram_token)
+        updater.bot.setWebhook(f'{os.environ["URL_PATH"]}/{telegram_token}')
+        updater.idle()
 
 
 if __name__ == '__main__':

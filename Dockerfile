@@ -11,4 +11,4 @@ RUN apt-get update \
 
 EXPOSE 8000
 
-CMD ["python3.7", "manage.py", "run", "bot"]
+CMD python3.7 manage.py create && python3.7 manage.py run bot
