@@ -71,6 +71,7 @@ class DropBoxDataProvider(DataProviderBase):
             if local_file.startswith("https://"):
                 url_result = self.dbx.files_save_url(dbx_file, local_file)
                 if url_result.is_complete():
+                    # TODO fix this
                     return url_result.get_complete().path_lower
             else:
                 with open(local_file, 'rb') as f:
