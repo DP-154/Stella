@@ -1,60 +1,51 @@
-from flask import Blueprint, request, redirect, flash, url_for, render_template, session
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask import Blueprint, request, redirect, flash, url_for, render_template
+from flask_login import current_user, login_user, logout_user
 from database.models import User
 from database.db_connection import session_maker
-from database.queries import get_or_none
+from flask_api.forms import SignInForm, SignUpForm
+from werkzeug.urls import url_parse
+
+auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
-
-@bp.route('/sign_in', methods='POST')
-def sign_in(username, password):
-    username = request.form['username']
-    password = request.form['password']
-    new_session = session_maker()
-    error = None
-    user = new_session.query(User.username, User.password_hash).filter(User.username == username).first()
-
-    if user is None:
-        error = "User doesn't exist."
-    elif not(check_password_hash(user['password_hash'], password)):
-        error = "Incorrect password."
-    else:
+@auth.route('/sign_in', methods='POST')
+def sign_in():
+    if current_user.is_authenticated:
         return redirect(url_for('homepage'))
+    form = SignInForm()
+    if form.validate_on_submit():
+        session = session_maker()
+        user = session.query(User).filter(User.username == form.username.data).first()
+        session.close()
+        if user is None or not user.check_password(form.password.data):
+            flash("Invalid username and/or password")
+            return redirect(url_for('sign_in'))
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('homepage')
+        return redirect(next_page)
+    return render_template('sign_in.html', form=form)
 
-    flash(error)
-    return render_template('sign_in.html')
 
-
-@bp.route('/sign_up', methods='POST')
+@auth.route('/sign_up', methods='POST')
 def sign_up():
-    username = request.form['username']
-    password = request.form['password']
-    new_session = session_maker()
-    error = None
-
-    if not (username or password):
-        error = "You need to fill all of required fields."
-    if get_or_none(new_session, User, username) is not None:
-        error = f"User with a name '{username}' already exists."
-    else:
-        new_user = User(username=username, password_hash=generate_password_hash(password))
-        try:
-            new_session.add(new_user)
-            new_session.commit()
-        except:
-            new_session.rollback()
-            error = "Sorry, an error occurred during the transaction of user's information to the database. " \
-                    "Please, try again."
-        finally:
-            new_session.close()
-        return redirect(url_for('api.sign_in'))
-
-    flash(error)
-    return render_template('sign_up.html')
+    if current_user.is_authenticated:
+        return redirect(url_for('homepage'))
+    form = SignUpForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data)
+        user.set_password(form.password.data)
+        session = session_maker()
+        session.add(user)
+        session.commit()
+        session.close()
+        flash("Registration successful. Please, sign in now.")
+        return redirect(url_for('sign_in'))
+    return render_template('register.html', form=form)
 
 
-@bp.route('log_out', methods='POST')
+@auth.route('/log_out', methods='POST')
 def log_out():
-    session.clear()
+    logout_user()
     return redirect(url_for('homepage'))

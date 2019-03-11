@@ -1,23 +1,17 @@
 import os
 import logging
-import requests
-import json
 from collections import deque
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
-from transport.data_provider import DropBoxDataProvider
-from database.db_connection import connect_db
 from bots.mockbase import Database
-from stella_api.service_data import store_bot_data
+from stella_api.service_data import store_bot_data, upload_image_to_dbx
 
-dbx_token = os.environ['DROPBOX_TOKEN']
 telegram_token = os.environ['TELEGRAM_TOKEN']
 port = int(os.environ['PORT'])
 url_path = os.environ['URL_PATH']
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-dbx_provider = DropBoxDataProvider(dbx_token)
 
 db_object = Database()
 ACTION, CHOICE, CHOOSE_STATION, SENT_LOCATION = range(4)
@@ -97,18 +91,12 @@ def send_file_dbx(bot, update):
     update.message.reply_text("Thank you! Would you like to /start again?")
     file_id = update.message.document.file_id
 
-    new_file = requests.get("https://api.telegram.org/bot{}/getFile?file_id={}".format(telegram_token, file_id))
-    loaded_data = json.loads(new_file.text)
-    file_path = loaded_data["result"]["file_path"]
+    dbx_path = upload_image_to_dbx(file_id)
 
-    down_path = "https://api.telegram.org/file/bot{}/{}".format(telegram_token, file_path)
-    dirname, basename = os.path.split(file_path)
-    dbx_path = "/telegram_files/" + basename
-    dbx_provider.file_upload(down_path, dbx_path)
     global image_link
     image_link = dbx_path
     request_user_location(bot, update)
-    bot.send_message(chat_id=update.message.chat_id, text=down_path)
+    bot.send_message(chat_id=update.message.chat_id, text=dbx_path)
 
     user_location = get_user_location(bot, update)
     tg_id = update.message.from_user.id
