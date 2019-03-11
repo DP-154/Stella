@@ -80,6 +80,7 @@ def drop(all, tables):
 
 @cli.command()
 def fake():
+    """ create fake instances in database """
     import random
     from itertools import chain
     from faker import Faker
@@ -98,10 +99,9 @@ def fake():
     companies = [get_or_create(session, FuelCompany, fuel_company_name=n)
                  for n in fuel_company_names]
 
-    fuel_marks = ['95', '98', '95']
-    premium = [False, False, True]
-    fuels = [get_or_create(session, Fuel, fuel_type=f, is_premium=p)
-             for f, p in zip(fuel_marks, premium)]
+    fuel_marks = ['92', '98', '95']
+    fuels = [get_or_create(session, Fuel, fuel_type=f, is_premium=False)
+             for f in fuel_marks]
 
     addresses = [fake.address() for _ in range(10)]
     gas_stations = [get_or_create(session, GasStation, address=a,
