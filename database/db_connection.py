@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker as SessionMaker
 #from config import DatabaseConfig
 
 engine = create_engine(os.environ['DATABASE_URL'], echo=True)
+
 session_maker = SessionMaker(bind=engine)
 
 def connect_db():

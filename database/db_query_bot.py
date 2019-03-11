@@ -2,6 +2,8 @@ from datetime import date, datetime
 
 from sqlalchemy.sql import func, subquery
 from sqlalchemy.sql.expression import literal
+from sqlalchemy.orm.query import Query
+
 
 from database.models import FuelCompany, GasStation, Fuel, Price
 
@@ -26,7 +28,7 @@ def get_date_subquery(session, days) -> subquery:
     return subquery
 
 
-def query_by_station_current_date(session, company_name, gas_station, days=None) -> list:
+def query_by_station_current_date(session, company_name, gas_station, days=None) -> Query:
     subquery = get_date_subquery(session, days)
 
     result = session.query(Price.price, GasStation.address, Price.date_of_price, Fuel.fuel_type
@@ -34,31 +36,24 @@ def query_by_station_current_date(session, company_name, gas_station, days=None)
                            ).join(FuelCompany, FuelCompany.id == GasStation.fuel_company_id
                            ).filter(FuelCompany.fuel_company_name == company_name
                            ).filter(GasStation.address == gas_station
-                           ).filter(func.date(Price.date_of_price) == subquery.c.date_of_price).all()
+                           ).filter(func.date(Price.date_of_price) == subquery.c.date_of_price)
 
-    pricelist = []
-    for row in result:
-        pricelist.append((row.fuel_type, row.price, row.date_of_price))
-    return pricelist
+    return result
 
 
-def query_avg_all_stations(session, days=None) -> list:
+def query_avg_all_stations(session, days=None) -> Query:
     subquery = get_date_subquery(session, days)
-
     result = session.query(func.avg(Price.price).label("average_price"),
                            Fuel.fuel_type, func.date(Price.date_of_price).label("date_of_price")
                            ).join(Fuel
                            ).filter(subquery.c.date_of_price == func.date(Price.date_of_price)
                            ).group_by(Fuel.fuel_type, func.date(Price.date_of_price)
-                           ).order_by(Fuel.fuel_type).all()
+                           ).order_by(Fuel.fuel_type)
 
-    pricelist = []
-    for row in result:
-        pricelist.append((row.fuel_type, round(row.average_price, 2), row.date_of_price))
-    return pricelist
+    return result
 
 
-def query_by_station_min_price(session, fuel_name, days=None) -> list:
+def query_by_station_min_price(session, fuel_name, days=None) -> Query:
     subquery_date = get_date_subquery(session, days)
     result = session.query(Price.price, Price.date_of_price, Fuel.fuel_type, GasStation.address,
                            FuelCompany.fuel_company_name
@@ -66,9 +61,6 @@ def query_by_station_min_price(session, fuel_name, days=None) -> list:
                            ).join(FuelCompany, FuelCompany.id == GasStation.fuel_company_id
                            ).filter(Fuel.fuel_type == fuel_name
                            ).filter(func.date(Price.date_of_price) == subquery_date.c.date_of_price
-                           ).order_by(Price.price).limit(1).all()
+                           ).order_by(Price.price).limit(1)
 
-    pricelist = []
-    for row in result:
-        pricelist.append((row.fuel_company_name, row.address, row.fuel_type, row.price, row.date_of_price))
-    return pricelist
+    return result

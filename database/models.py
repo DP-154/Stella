@@ -6,18 +6,28 @@ from sqlalchemy import (Column, String, DateTime, Integer,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 Base = declarative_base()
 
 
-class User(Base):
+class User(UserMixin, Base):
     __tablename__ = 'user'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid1)
+    username = Column('username', String)
+    password_hash = Column('password_hash', String)
     tg_id = Column('tg_id', Integer)
     date_of_registration = Column('date_of_registration', DateTime,
                                   default=datetime.datetime.utcnow)
     images_connections = relationship('Images')
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
 class FuelCompany(Base):
@@ -60,6 +70,7 @@ class Images(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'))
     user_connections = relationship('User')
     price_connections = relationship('Price', backref='image')
+
 
 
 class Price(Base):
