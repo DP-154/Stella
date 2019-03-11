@@ -1,5 +1,12 @@
-from flask import Blueprint
+from flask import Flask
 
-bp = Blueprint('api', __name__)
 
-from flask_api import routes, auth
+def create_app():
+    app = Flask(__name__, instance_relative_config=True)
+
+    from . import prices, auth, api
+    app.register_blueprint(prices.ui)
+    app.register_blueprint(auth.auth)
+    app.register_blueprint(api.bp)
+
+    return app

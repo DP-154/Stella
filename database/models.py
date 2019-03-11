@@ -18,10 +18,6 @@ class User(Base):
     date_of_registration = Column('date_of_registration', DateTime, default=datetime.datetime.utcnow())
     images_connections = relationship('Images')
 
-    def __init__(self, tg_id, date_of_registration=datetime.datetime.utcnow()):
-        self.tg_id = tg_id
-        self.date_of_registration = date_of_registration
-
 
 class FuelCompany(Base):
     __tablename__ = 'fuel_company'
@@ -29,9 +25,6 @@ class FuelCompany(Base):
     id = Column(UUID(as_uuid=True), primary_key=True)
     fuel_company_name = Column('fuel_company_name', String)
     gas_station_connection = relationship('GasStation')
-
-    def __init__(self, fuel_company_name):
-        self.fuel_company_name = fuel_company_name
 
 
 class Fuel(Base):
@@ -41,10 +34,6 @@ class Fuel(Base):
     fuel_type = Column('fuel_type', String, nullable=False)
     is_premium = Column('is_premium', Boolean)
     price_connections = relationship('Price', backref='fuel')
-
-    def __init__(self, fuel_type, is_premium):
-        self.fuel_type = fuel_type
-        self.is_premium = is_premium
 
 
 class GasStation(Base):
@@ -56,10 +45,6 @@ class GasStation(Base):
                                                  ondelete='CASCADE'))
     fuel_company_connection = relationship('FuelCompany')
     price_connections = relationship('Price', backref='gas_station')
-
-    def __init__(self, address, fuel_company_id):
-        self.address = address
-        self.fuel_company_id = fuel_company_id
 
 
 class Images(Base):
@@ -74,12 +59,6 @@ class Images(Base):
     user_connections = relationship('User')
     price_connections = relationship('Price', backref='image')
 
-    def __init__(self, link, is_recognized, user_id, is_from_metadata=False, created_at=datetime.datetime.utcnow()):
-        self.link = link
-        self.is_recognized = is_recognized
-        self.created_at = created_at
-        self.is_from_metadata = is_from_metadata
-        self.user_id = user_id
 
 class Price(Base):
     __tablename__ = 'price'
@@ -91,10 +70,3 @@ class Price(Base):
                                                 ondelete='CASCADE'))
     fuel_id = Column(Integer, ForeignKey('fuel.id', ondelete='CASCADE'))
     images_id = Column(Integer, ForeignKey('images.id', ondelete='CASCADE'))
-
-    def __init__(self, price, gas_station, fuel, image, date_of_price=datetime.datetime.utcnow()):
-        self.price = price
-        self.date_of_price = date_of_price
-        self.gas_station_id = gas_station
-        self.fuel_id = fuel
-        self.images_id = image

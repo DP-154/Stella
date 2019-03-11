@@ -4,9 +4,9 @@ import psycopg2
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker as SessionMaker
 
-#from config import DatabaseConfig
-
-engine = create_engine(os.environ['DATABASE_URL'], echo=True)
+from config import DatabaseConfig
+DATABASE_URL='postgres://kqpmfuegypaqeo:cf9cf9db21b192df1253509893b29369891a97c4165c40cdbb038565c0a58ce1@ec2-79-125-6-250.eu-west-1.compute.amazonaws.com:5432/de8na53ov1p0au'
+engine = create_engine(DATABASE_URL, echo=True)
 session_maker = SessionMaker(bind=engine)
 
 def connect_db():

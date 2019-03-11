@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block head %}
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock title %}Stella</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  {% endblock %}
+</head>
+<body>
+
+{% block navbar %}
+<nav class="navbar navbar-light bg-light">
+
+  <a class="navbar-brand" href="#">Stella</a>
+
+</nav>
+{% endblock navbar %}
+
+<div id="content">{% block content %}{% endblock content %}</div>
+<script src="{{ url_for('static', filename='jquery.js') }}"></script>
+<script src="{{ url_for('static', filename='popper.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+</html>

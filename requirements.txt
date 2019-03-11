@@ -1,4 +1,5 @@
 python-telegram-bot
+flask
 requests
 sqlalchemy
 psycopg2
@@ -11,4 +12,4 @@ dropbox
 click
 geopy
 googlemaps
-flask
+faker
