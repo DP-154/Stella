@@ -64,3 +64,22 @@ def query_by_station_min_price(session, fuel_name, days=None) -> Query:
                            ).order_by(Price.price).limit(1)
 
     return result
+
+def query_avg_price_period(session,fuel_name, day_from=None, day_to=None) -> Query:
+    day_to = days_to_date(day_to)
+    if day_to is None:
+        day_to = datetime.today().date()
+    day_from = days_to_date(day_from)
+    if day_from is None:
+        day_from=date(day_to.year, day_to.month, 1)
+    result = session.query(func.avg(Price.price).label("average_price"),
+                           Fuel.fuel_type, func.date(Price.date_of_price).label("date_of_price"),
+                           FuelCompany.fuel_company_name
+                           ).join(Fuel).join(GasStation
+                           ).join(FuelCompany, FuelCompany.id == GasStation.fuel_company_id
+                           ).filter(Fuel.fuel_type == fuel_name
+                           ).filter(func.date(Price.date_of_price).between(day_from, day_to)
+                           ).group_by(Fuel.fuel_type, func.date(Price.date_of_price),FuelCompany.fuel_company_name
+                           ).order_by(FuelCompany.fuel_company_name, func.date(Price.date_of_price))
+
+    return result
