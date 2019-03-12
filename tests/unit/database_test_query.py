@@ -1,6 +1,7 @@
 import random
 from datetime import timedelta, datetime
 from itertools import chain
+from os import environ
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -9,7 +10,7 @@ from database.database_manupulation import drop_all_tables, create_all, truncate
 from database.models import (User, FuelCompany, Fuel, GasStation, Images, Price)
 from database.queries import get_or_create
 
-TEST_CONNECT = 'postgresql://'
+TEST_CONNECT = environ['DATABASE_TEST_URL']
 
 engine = create_engine(TEST_CONNECT)
 SessionMaker = sessionmaker(bind=engine)
@@ -56,16 +57,24 @@ def start_test_db():
         session.add(entity)
 
     session.commit()
+    session.close()
+
+def truncate_test_all_tables():
+    session = SessionMaker()
+    for table in (User, FuelCompany, Fuel, GasStation, Images, Price):
+        session.execute(table.__table__.delete())
+    session.commit()
+    session.close()
 
 
-def create_test_tables():
-    drop_all_tables()
-    create_all()
+# def create_test_tables():
+#     drop_all_tables()
+#     create_all()
 
 
-def create_test_inf0():
-    truncate_all_tables()
+def create_test_info():
+    truncate_test_all_tables()
     start_test_db()
 
 if __name__=="__main__":
-    create_test_inf0()
+    create_test_info()
