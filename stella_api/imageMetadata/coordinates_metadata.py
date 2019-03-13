@@ -27,3 +27,14 @@ class MetaDataFromCoordinates:
         return location.address
 
 
+if __name__ == '__main__':
+    lat = '48.453215'
+    long = '35.076644'
+    a = MetaDataFromCoordinates(lat, long)
+
+    print(a.get_address())
+    print(a.get_name())
+
+
+
+
