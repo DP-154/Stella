@@ -83,3 +83,21 @@ def query_avg_price_period(session,fuel_name, day_from=None, day_to=None) -> Que
                            ).order_by(FuelCompany.fuel_company_name, func.date(Price.date_of_price))
 
     return result
+
+def query_all_price_period(session, day_from=None, day_to=None) -> Query:
+    day_to = days_to_date(day_to)
+    if day_to is None:
+        day_to = datetime.today().date()
+    day_from = days_to_date(day_from)
+    if day_from is None:
+        day_from=date(day_to.year, day_to.month, 1)
+    result = session.query(Price.price,
+                           Fuel.fuel_type, Price.date_of_price,
+                           FuelCompany.fuel_company_name,
+                           GasStation.address
+                           ).join(Fuel).join(GasStation
+                           ).join(FuelCompany, FuelCompany.id == GasStation.fuel_company_id
+                           ).filter(func.date(Price.date_of_price).between(day_from, day_to)
+                           ).order_by(Price.date_of_price.desc(),Fuel.fuel_type,FuelCompany.fuel_company_name, )
+
+    return result
