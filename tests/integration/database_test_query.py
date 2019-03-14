@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from itertools import chain
 from os import environ
 
@@ -41,7 +41,8 @@ def start_test_db():
               for i in range(10)]
 
     prices = []
-    start_date = datetime(2019, 3, 5, 10, 40)
+    start_date = datetime(date.today().year, date.today().month, date.today().day, 10, 40)
+
     start_prices = [28, 30]
     for fuel in range(len(fuels)):
         for j in range(len(gas_stations)):
@@ -59,6 +60,7 @@ def start_test_db():
     session.commit()
     session.close()
 
+
 def truncate_test_all_tables():
     session = SessionMaker()
     for table in (User, FuelCompany, Fuel, GasStation, Images, Price):
@@ -67,14 +69,10 @@ def truncate_test_all_tables():
     session.close()
 
 
-# def create_test_tables():
-#     drop_all_tables()
-#     create_all()
-
-
 def create_test_info():
     truncate_test_all_tables()
     start_test_db()
 
-if __name__=="__main__":
+
+if __name__== "__main__":
     create_test_info()

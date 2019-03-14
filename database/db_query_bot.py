@@ -21,7 +21,7 @@ def days_to_date(days) -> date:
 def get_period(day_from=None, day_to=None) -> tuple:
     day_to = days_to_date(day_to)
     if day_to is None:
-        day_to = datetime.today().date()
+        day_to = date.today()
     day_from = days_to_date(day_from)
     if day_from is None:
         day_from = day_to - timedelta(days=10)
