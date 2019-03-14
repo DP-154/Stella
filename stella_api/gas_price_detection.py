@@ -152,10 +152,3 @@ class YukonDetect:
 
         else:
             return (False)
-
-if __name__ == '__main__':
-    img_path = '/home/kerch007/data_gas/yuk3.png'
-    price = YukonDetect.digit_to_price(img_path)
-    #price = BrsmDetect.digit_to_price(img_path)
-
-    print(price)
