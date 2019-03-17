@@ -1,4 +1,5 @@
 from collections import namedtuple
+from time import sleep
 
 import dropbox
 import requests
@@ -26,7 +27,7 @@ class DataProviderBase:
         raise NotImplementedError
 
 
-def _answer(f):
+def _error_handler(f):
     def wrapper(*args):
         try:
             return f(*args)
@@ -46,7 +47,7 @@ def for_all_methods(decorator):
     return decorate
 
 
-@for_all_methods(_answer)
+@for_all_methods(_error_handler)
 class DropBoxDataProvider(DataProviderBase):
     smoke_url = constants.DROPBOX_SMOKE_URL
 
@@ -69,10 +70,16 @@ class DropBoxDataProvider(DataProviderBase):
     def file_upload(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
         if isinstance(local_file, str):
             if local_file.startswith("https://"):
+                waiting_time = 3
+                waiting_attempt = 60
                 url_result = self.dbx.files_save_url(dbx_file, local_file)
-                if url_result.is_complete():
-                    # TODO fix this
-                    return url_result.get_complete().path_lower
+                job_id = url_result.get_async_job_id()
+                while waiting_attempt > 0:
+                    st = self.dbx.files_save_url_check_job_status(job_id)
+                    if st.is_complete():
+                        return st.get_complete().path_lower
+                    sleep(waiting_time)
+                    waiting_attempt -= 1
             else:
                 with open(local_file, 'rb') as f:
                     return self.dbx.files_upload(f.read(), dbx_file).path_lower
