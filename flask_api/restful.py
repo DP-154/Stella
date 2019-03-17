@@ -6,20 +6,25 @@ from stella_api.imageMetadata.coordinates_metadata import MetaDataFromCoordinate
 from stella_api.service_data import upload_image_to_dbx
 from flask_login import login_required
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker as SessionMaker
 
+engine = create_engine('postgresql://postgres:1993golovko@127.0.0.1:5433/testdb')
+Session = SessionMaker(bind=engine)
+session = Session()
 restful = Blueprint('restful', __name__, url_prefix='/restful')
 
 
 @restful.route('/min_by_fuel', methods=['GET'])
-@login_required
+# @login_required
 def min_price():
     if request.is_json:
         request_data = request.get_json()
     fuel_type = request_data["fuel_type"]
     date_of_price = request_data["date_of_price"]
-    result = query_by_station_min_price(fuel_type, date_of_price)
+    result = query_by_station_min_price(session, fuel_type, date_of_price)
     result_dict = helpers.query_to_dict(result)
-    return json.dumps(result_dict, cls=helpers.QueryEncoder, ensure_ascii=False)
+    return json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
 
 
 @restful.route('/price_by_day', methods=['GET'])
@@ -33,9 +38,9 @@ def price_by_day():
     company = MetaDataFromCoordinates(lat, long)
     company_name = company.get_name()
     company_address = company.get_address()
-    result = query_by_station_current_date(company_name, company_address, date_of_price)
+    result = query_by_station_current_date(session, company_name, company_address, date_of_price)
     result_dict = helpers.query_to_dict(result)
-    return json.dumps(result_dict, cls=helpers.QueryEncoder, ensure_ascii=False)
+    return json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
 
 
 @restful.route('/avg_price', methods=['GET'])
@@ -44,9 +49,9 @@ def avg_price():
     if request.is_json:
         request_data = request.get_json()
     date_of_price = request_data["date_of_price"]
-    result = query_avg_all_stations(date_of_price)
+    result = query_avg_all_stations(session, date_of_price)
     result_dict = helpers.query_to_dict(result)
-    return json.dumps(result_dict, cls=helpers.QueryEncoder, ensure_ascii=False)
+    return json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
 
 
 @restful.route('/upload_image', methods=['POST'])

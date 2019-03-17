@@ -8,11 +8,11 @@ from werkzeug.urls import url_parse
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-@auth.route('/sign_in', methods='POST')
+@auth.route('/sign_in', methods=['POST'])
 def sign_in():
     if current_user.is_authenticated:
         return redirect(url_for('homepage'))
-    form = SignInForm()
+    form = SignInForm(meta={'csrf': False})
     if form.validate_on_submit():
         session = session_maker()
         user = session.query(User).filter(User.username == form.username.data).first()
@@ -28,11 +28,11 @@ def sign_in():
     return render_template('sign_in.html', form=form)
 
 
-@auth.route('/sign_up', methods='POST')
+@auth.route('/sign_up', methods=['POST'])
 def sign_up():
     if current_user.is_authenticated:
         return redirect(url_for('homepage'))
-    form = SignUpForm()
+    form = SignUpForm(meta={'csrf': False})
     if form.validate_on_submit():
         user = User(username=form.username.data)
         user.set_password(form.password.data)
@@ -45,7 +45,7 @@ def sign_up():
     return render_template('register.html', form=form)
 
 
-@auth.route('/log_out', methods='POST')
+@auth.route('/log_out', methods=['POST'])
 def log_out():
     logout_user()
     return redirect(url_for('homepage'))

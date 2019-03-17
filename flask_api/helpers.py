@@ -1,6 +1,22 @@
 import json
 import datetime
 import decimal
+from functools import singledispatch
+
+
+@singledispatch
+def to_serializable(val):
+    return str(val)
+
+
+@to_serializable.register(datetime)
+def ts_datetime(val):
+    return val.isoformat()
+
+
+@to_serializable.register(decimal.Decimal)
+def ts_decimal(val):
+    return float(val)
 
 
 def query_to_dict(result):
