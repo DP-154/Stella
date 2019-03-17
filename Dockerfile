@@ -1,11 +1,10 @@
-FROM python:3.7.2-stretch
+FROM python:3.7.2-slim
 
 WORKDIR /stella
 
 COPY . /stella
 
 RUN apt-get update \
-    # && apt-get install postgresql-dev \
     && pip3 install pip --upgrade \
     && pip3 install -r requirements.txt
 

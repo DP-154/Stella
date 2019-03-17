@@ -5,18 +5,16 @@ from flask_api import helpers
 from stella_api.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
 from stella_api.service_data import upload_image_to_dbx
 from flask_login import login_required
+from database.db_connection import session_maker
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker as SessionMaker
 
-engine = create_engine('postgresql://postgres:1993golovko@127.0.0.1:5433/testdb')
-Session = SessionMaker(bind=engine)
-session = Session()
 restful = Blueprint('restful', __name__, url_prefix='/restful')
+
+session = session_maker()
 
 
 @restful.route('/min_by_fuel', methods=['GET'])
-# @login_required
+@login_required
 def min_price():
     if request.is_json:
         request_data = request.get_json()

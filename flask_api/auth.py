@@ -8,7 +8,7 @@ from werkzeug.urls import url_parse
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-@auth.route('/sign_in', methods=['POST'])
+@auth.route('/sign_in', methods=['GET', 'POST'])
 def sign_in():
     if current_user.is_authenticated:
         return redirect(url_for('homepage'))
@@ -19,16 +19,16 @@ def sign_in():
         session.close()
         if user is None or not user.check_password(form.password.data):
             flash("Invalid username and/or password")
-            return redirect(url_for('sign_in'))
+            return redirect(url_for('auth.sign_in'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('homepage')
         return redirect(next_page)
-    return render_template('sign_in.html', form=form)
+    return render_template('auth/login.html', form=form)
 
 
-@auth.route('/sign_up', methods=['POST'])
+@auth.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     if current_user.is_authenticated:
         return redirect(url_for('homepage'))
@@ -41,11 +41,11 @@ def sign_up():
         session.commit()
         session.close()
         flash("Registration successful. Please, sign in now.")
-        return redirect(url_for('sign_in'))
-    return render_template('register.html', form=form)
+        return redirect(url_for('auth.sign_in'))
+    return render_template('auth/register.html', form=form)
 
 
-@auth.route('/log_out', methods=['POST'])
+@auth.route('/log_out', methods=['GET', 'POST'])
 def log_out():
     logout_user()
     return redirect(url_for('homepage'))

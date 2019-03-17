@@ -4,7 +4,8 @@ from collections import deque
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 from bots.mockbase import Database
-from stella_api.service_data import store_bot_data, upload_image_to_dbx
+from stella_api.service_data import store_bot_data, upload_image_to_dbx, comany_and_address, session_scope
+from database.queries import list_fuel_company_names, aсquire_gas_station
 
 telegram_token = os.environ['TELEGRAM_TOKEN']
 

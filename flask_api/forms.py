@@ -6,20 +6,20 @@ from database.db_connection import session_maker
 
 
 class SignInForm(FlaskForm):
-    username = StringField('username', validators=[DataRequired()])
-    password = PasswordField('password', validators=[DataRequired()])
-    remember_me = BooleanField('remember me')
-    submit = SubmitField('submit')
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember me')
+    submit = SubmitField('Sign In')
 
 
 class SignUpForm(FlaskForm):
-    username = StringField('username', validators=[DataRequired()])
-    password = PasswordField('password', validators=[DataRequired()])
-    password_repeat = PasswordField('repeat password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('register')
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password_repeat = PasswordField('Repeat password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')
 
-    def validate_user(self, username):
+    def validate_username(self, username):
         session = session_maker()
-        user = session.query(User).filter(User.username == username).first()
+        user = session.query(User).filter(User.username == username.data).first()
         if user is not None:
             raise ValidationError('User with such name already exists.')

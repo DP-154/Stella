@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+<body>
+
+{% block navbar %}
+<nav class="navbar navbar-light bg-light">
+  {{ super() }}
+
+  <div class="nav-item dropdown">
+
+    <a class="nav-link dropdown-toggle" href="#" id="user_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <img src="{{ url_for('static', filename='user.svg') }}" height="30" width="30">
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="user_dropdown">
+      <a class="dropdown-item" href="#">Settings</a>
+      <a class="dropdown-item" href="#">Log out</a>
+
+    </div>
+  </div>
+
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<div id="buttons" class="container-fluid" style="margin-top:3rem; margin-bottom:3rem;">
+
+  <div class="row justify-content-around">
+
+    <div class="col-2">
+      <button type="button" class="btn btn-primary">Add photo</button>
+    </div>
+
+    <div class="col-2">
+      <button type="button" class="btn btn-primary">Go to graphics</button>
+    </div>
+
+    <div class="col-2">
+      <button type="button" class="btn btn-primary dropdown-toggle" id="filter-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filters</button>
+      <div class="dropdown-menu" aria-labelledby="filter-dropdown">
+        <a class="dropdown-item" href="#">Action</a>
+        <a class="dropdown-item" href="#">Another action</a>
+        <a class="dropdown-item" href="#">Something else here</a>
+      </div>
+    </div>
+
+    <div class="col-2">
+      <button type="button" class="btn btn-primary dropdown-toggle" id="sorting-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sorting</button>
+      <div class="dropdown-menu" aria-labelledby="sorting-dropdown">
+        <a class="dropdown-item" href="#">Ascending</a>
+        <a class="dropdown-item" href="#">Descending</a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="prices" class="container-flex" style="overflow:scroll; white-space:nowrap; overflow-y:hidden; max-height:30rem;">
+
+  {% for item in price_list%}
+  <div class="card" style="display:inline-block; width:12rem; margin:2rem;">
+
+    <div class="card-body">
+
+      <h5 class="card-title">{{ item.name }}</h5>
+      <ul class=" card-text list-group list-group-flush">
+        {% for fuel in item.fuel %}
+        <li class="list-group-item">
+          <p>{{ fuel[0] }} {{ fuel[1] }}</p>
+        </li>
+        {% endfor %}
+        <li class="list-group-item">
+          <p>{{ item.datetime }}</p>
+        </li>
+      </ul>
+
+
+    </div>
+  </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+
+<!--<div>Icons made by <a href="https://www.flaticon.com/<?=_('authors').'/'?>smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" 		    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 		    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>-->
+</body>
