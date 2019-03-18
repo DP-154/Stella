@@ -15,3 +15,8 @@ click-repl
 geopy
 googlemaps
 faker
+keras
+flask-wtf
+tensorflow
+keras
+scikit-image

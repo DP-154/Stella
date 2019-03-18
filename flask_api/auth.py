@@ -5,13 +5,14 @@ from database.db_connection import session_maker
 from flask_api.forms import SignInForm, SignUpForm
 from werkzeug.urls import url_parse
 
+
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @auth.route('/sign_in', methods=['GET', 'POST'])
 def sign_in():
     if current_user.is_authenticated:
-        return redirect(url_for('homepage'))
+        return redirect(url_for('base.homepage'))
     form = SignInForm(meta={'csrf': False})
     if form.validate_on_submit():
         session = session_maker()
@@ -23,7 +24,7 @@ def sign_in():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('homepage')
+            next_page = url_for('base.homepage')
         return redirect(next_page)
     return render_template('auth/login.html', form=form)
 
@@ -31,7 +32,7 @@ def sign_in():
 @auth.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     if current_user.is_authenticated:
-        return redirect(url_for('homepage'))
+        return redirect(url_for('base.homepage'))
     form = SignUpForm(meta={'csrf': False})
     if form.validate_on_submit():
         user = User(username=form.username.data)
@@ -48,4 +49,4 @@ def sign_up():
 @auth.route('/log_out', methods=['GET', 'POST'])
 def log_out():
     logout_user()
-    return redirect(url_for('homepage'))
+    return redirect(url_for('base.homepage'))
