@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 from database.models import User
@@ -23,3 +24,8 @@ class SignUpForm(FlaskForm):
         user = session.query(User).filter(User.username == username.data).first()
         if user is not None:
             raise ValidationError('User with such name already exists.')
+
+
+class SendPhotoForm(FlaskForm):
+    photo = FileField(validators=[FileRequired(u'file empty'), FileAllowed(['jpg', 'png'], 'Imagaes only')])
+    submit = SubmitField()

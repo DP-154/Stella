@@ -8,7 +8,7 @@ def to_serializable(val):
     return str(val)
 
 
-@to_serializable.register(datetime)
+@to_serializable.register(datetime.datetime)
 def ts_datetime(val):
     return val.isoformat()
 
