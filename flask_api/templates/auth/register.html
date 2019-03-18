@@ -1,18 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container" style="width:300px; margin-top:5rem;">
-  <form method="post">
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input name="username" class="form-control" id="username" required>
-    </div>
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input name="password" type="password" class="form-control" id="password" required>
-    </div>
-    <div class="form-group" >
-      <input type="submit" value="Register" class="btn btn-primary" style="margin: auto; display: block;">
-    </div>
+  <form action="" method="post">
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+    {% if field.type != "SubmitField" %}
+      <div class="form-group">
+        <label>{{ field.label }}</label>
+        {{ field(size=32, class_="form-control", placeholder="" + field.name|string)}}
+        {% for error in field.errors %}
+        <span style="color:red;">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="form-group">
+        {{ field(class_="btn btn-primary")}}
+      </div>
+    {% endif %}
+    {% endfor %}
   </form>
 </div>
 {% endblock content %}
