@@ -1,169 +1,174 @@
 import os
 import logging
-from collections import deque
-from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
-from bots.mockbase import Database
-from stella_api.service_data import store_bot_data, upload_image_to_dbx, comany_and_address, session_scope
-from database.queries import list_fuel_company_names, aсquire_gas_station
-
-telegram_token = os.environ['TELEGRAM_TOKEN']
-
-locations = dict()
+from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
+                     InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
+                         CallbackQueryHandler
+from stella_api.service_data import store_bot_data, upload_image_to_dbx
+from bots.bot_services import get_station_by_location
+import bots.constants as const
+# TODO delete before production!:
+from stella_api.image_recognition import digit_to_price
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-db_object = Database()
-ACTION, CHOICE, CHOOSE_STATION, SENT_LOCATION = range(4)
+PHOTO, CHOICE, SELECT_STATION, LOCATION, SET_DATA, GET_DATA, DATALOC, IN_DEV = range(8)
 
 
 def start(bot, update):
-    reply_keyboard = [['/setdata', '/getdata']]
 
-    update.message.reply_text(
-            "Hello! My name is Stella, and I will provide you with the actual information on prices of Ukrainian" \
-            "gas stations.\n"
-            "Simply type or choose button, what do yo want\n"
-            "/setdata - send us actual photo with gas prices.\n"
-            "/getdata - get information about gas prices\n"
-            "If something goes wrong, simply type '/start'. If you need help, type 'help'.",
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-
-    
-def help(bot, update):
-    update.message.reply_text("Still in development./start")
-
-
-#TODO: upgrade pagination
-def setdata(bot, update):
-    with session_scope() as session:
-        companies = list_fuel_company_names(session)
-        height = int(len(companies) ** 0.5)
-        reply_keyboard = list(zip(*[iter(companies)] * height))
-    
-    update.message.reply_text("Please chose Fuel company from the list, \n"
-                                  "or type /add_company if you can't see it",
-                               reply_markup=ReplyKeyboardMarkup(reply_keyboard,
-                               one_time_keyboard=True))
+    bot.send_message(chat_id=update.effective_message.chat_id,
+                     text=const.start_text,
+                     reply_markup=InlineKeyboardMarkup(const.start_keyboard))
     return CHOICE
 
 
-def add_company(bot, update):
-    update.message.reply_text("Please enter company name:")
-    return ACTION
+def start_button(bot, update):
+    query = update.callback_query
+    if query.data == 'send':
+        return send_location(bot, update)
+    elif query.data == 'get':
+        return getdata(bot, update)
 
 
-def cancel(bot, update):
-    return ConversationHandler.END
-
-
-def add_to_db(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text=db_object.add_company(update.message.text))
-    return sent_location(bot, update)
-
-
-def sent_location(bot, update):
+def getdata(bot, update):
+    query = update.callback_query
     location_button = KeyboardButton('Sent location', request_location=True)
-    update.message.reply_text('Please, share you location so we can find nearest gas stations',
-                              reply_markup=ReplyKeyboardMarkup([[location_button]],
-                              one_time_keyboard=True, resize_keyboard=True))
-    return SENT_LOCATION
+    no_matter = KeyboardButton('Doesn\'t matter')
+    bot.send_message(chat_id=query.message.chat_id,
+                     text='Please share your location to get data depending your place '
+                          'or press "Skip" if location doesn\'t matter',
+                     reply_markup=ReplyKeyboardMarkup([[location_button], [no_matter]],
+                                                      one_time_keyboard=True, resize_keyboard=True)
+                     )
+    return GET_DATA
 
 
-def got_location(bot, update):
+def setdata(bot, update, location, user_data):
+    stations = get_station_by_location(lat=location['latitude'], lng=location['longitude'])
+    if not stations:
+        bot.send_message(text="There are no gas stations in your location, please try again.",
+                         chat_id=update.message.chat_id)
+        return send_location(bot, update)
+    user_data['stations'] = stations
+    buttons = [[InlineKeyboardButton(text=st["name"]+f'\n{st["adress"]}',
+                                     callback_data=stations.index(st))] for st in stations]
+    bot.send_message(text="Please choose fuel company from the list: ",
+                     chat_id=update.message.chat_id,
+                     reply_markup=InlineKeyboardMarkup(buttons))
+    return SELECT_STATION
+
+
+def select_station(bot, update, user_data):
+    query = update.callback_query
+    user_data['gas_st'] = user_data['stations'][int(query.data)]
+    bot.send_message(text='You\'ve selected "{}".\n Please send us your photo:'
+                     .format(user_data['stations'][int(query.data)]['name']),
+                     chat_id=query.message.chat_id)
+    return PHOTO
+
+
+def send_location(bot, update):
+    location_button = KeyboardButton('Send current location', request_location=True)
+    bot.send_message(chat_id=update.effective_message.chat_id,
+                     text='Please, share you location so we can find nearest gas stations.\n'
+                          'Tap the button if you are near gas station now, or choose location manually',
+                     reply_markup=ReplyKeyboardMarkup([[location_button]],
+                                                      one_time_keyboard=True, resize_keyboard=True))
+    return LOCATION
+
+
+def got_location(bot, update, user_data):
+    chat_id = update.message.chat_id
+    bot.send_message(chat_id=chat_id, text="Thanks!", reply_markup=ReplyKeyboardRemove())
     loc = update.message.location
-    update.message.reply_text('Thanks!\n' + str(loc))
-    tg_id = update.message.from_user.id
-    locations[tg_id] = loc
-    return choose_station(bot, update, update.message.location)
+    return setdata(bot, update, loc, user_data)
 
 
-def choose_station(bot, update, location):
-    company, address = comany_and_address(location['latitude'],
-                                          location['longitude'])
-    with session_scope() as session:
-        station = acquire_gas_station(session, company, address)
-        reply_keyboard = [
-            [f'{company} {station.address}'],
-            ['other']
-        ]
-    update.message.reply_text("Please chose Gas Station from the list",
-                              reply_markup=ReplyKeyboardMarkup(reply_keyboard,
-                                                               one_time_keyboard=True))
-    return CHOOSE_STATION
+def get_data_by_location(bot, update):
+
+    bot.send_message(chat_id=update.message.chat_id, text="ok!",
+                     reply_markup=ReplyKeyboardRemove())
+    bot.send_message(chat_id=update.message.chat_id, text="Please choose:",
+                     reply_markup=InlineKeyboardMarkup(const.data_by_loc_keyboard))
+    return DATALOC
 
 
-def send_photo(bot, update):
-    update.message.reply_text("Please sent us the photo of Stella")
-    return cancel(bot, update)
+def dataloc(bot, update):
+    bot.send_message(chat_id=update.effective_message.chat_id,
+                     text="Select types of fuel:\n\nIN DEVELOPMENT",
+                     reply_markup=ReplyKeyboardRemove())
+    return start(bot, update)
+
+
+def help(bot, update):
+    update.message.reply_text("Still in development. /start")
 
 
 def error(bot, update, error):
     logger.warning("Update {} caused error {}".format(update, error))
 
 
-def send_file_dbx(bot, update):
-    # TODO move this to services
-    file_id = update.message.document.file_id
+def cancel(bot, update):
+    return ConversationHandler.END
+
+
+def send_file_dbx(bot, update, user_data):
+    # TODO move this to services, realize else
+    if update.message.document:
+        file_id = update.message.document.file_id
+    elif update.message.photo:
+        file_id = update.message.photo[-1].file_id
+    else:
+        pass
+    user_id = update.message.from_user.username
+    station_name = user_data['gas_st']['name']
+    adress = user_data['gas_st']['adress']
+    lat, lng = user_data['gas_st']['lat'], user_data['gas_st']['lng']
     dbx_path = upload_image_to_dbx(file_id)
-
-    global image_link
-    image_link = dbx_path
-    request_user_location(bot, update)
-    bot.send_message(chat_id=update.message.chat_id, text=dbx_path)
-
-
-def request_user_location(bot, update):
-    chat_id = update.message.chat_id
-    location_keyboard = KeyboardButton(text="My Location", request_location=True)
-    custom_keyboard = [[location_keyboard]]
-    reply_markup = ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
-    bot.send_message(chat_id=chat_id, text="Please, share your location:", reply_markup=reply_markup)
-
-
-def get_user_location(bot, update):
-    new_location = update.message.location
-    chat_id = update.message.chat_id
-    bot.send_message(chat_id=chat_id, text="Thanks!", reply_markup=ReplyKeyboardRemove())
-    tg_id = update.message.from_user.id
-    locations[tg_id] = dict(lat=new_location['latitude'], long=new_location['longitude'])
-    print(locations)
-
-
-message_handlers = {Filters.document: send_file_dbx, Filters.location: get_user_location, }
-command_handlers = {"start": start, "help": help, }
+    bot.send_message(chat_id=update.message.chat_id, text="download success! "+dbx_path)
+# TODO uncomment to solve trouble with alchemy:
+    #response = store_bot_data(telegram_id=user_id, image_link=dbx_path, company_name=station_name,
+    #                          address=adress, lat=lat, lng=lng)
+    is_recognized, fuel_type, price = digit_to_price(dbx_path)
+    if is_recognized:
+        bot.send_message(chat_id=update.message.chat_id, text=f"Recognized!\n"
+        f"A{fuel_type}: {price}грн")
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text="Failed to recognize")
+    return start(bot, update)
 
 
 def main(poll=True):
+    telegram_token = os.environ['TELEGRAM_TOKEN']
     updater = Updater(telegram_token)
     disp = updater.dispatcher
     disp.add_error_handler(error)
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('add_company', add_company),
-                      CommandHandler("setdata", setdata)],
+        entry_points=[CommandHandler('start', start), ],
 
         states={
-            ACTION: [MessageHandler(Filters.text, add_to_db)],
-            CHOICE: [CommandHandler('add_company', add_company),
-                     MessageHandler(Filters.text, sent_location)],
-            SENT_LOCATION: [MessageHandler(Filters.location, got_location)],
-            CHOOSE_STATION: [MessageHandler(Filters.text, send_photo)]
+            CHOICE: [CallbackQueryHandler(start_button)],
+            LOCATION: [MessageHandler(Filters.location, got_location, pass_user_data=True)],
+            GET_DATA: [MessageHandler(Filters.location, get_data_by_location), MessageHandler(Filters.text, dataloc)],
+            DATALOC: [CallbackQueryHandler(dataloc)],
+            SELECT_STATION: [CallbackQueryHandler(select_station, pass_user_data=True)],
+            PHOTO: [(MessageHandler(Filters.document, send_file_dbx, pass_user_data=True)),
+                    MessageHandler(Filters.photo, send_file_dbx, pass_user_data=True)]
         },
 
         fallbacks=[CommandHandler('cancel', cancel)]
     )
     disp.add_handler(conv_handler)
-    disp.add_handler(CommandHandler("start", start))
     disp.add_handler(CommandHandler("help", help))
-    disp.add_handler(CommandHandler("getdata", help))
-    disp.add_handler(CommandHandler("chose_station", help))
-    disp.add_handler(MessageHandler(Filters.document, send_file_dbx))
-    disp.add_handler(MessageHandler(Filters.photo, send_file_dbx))
+    disp.add_handler(CommandHandler("start", start))
+    disp.add_error_handler(error)
 
     if poll:
         updater.start_polling()
+        updater.idle()
     else:
         updater.start_webhook(listen="0.0.0.0",
                               port=int(os.environ['PORT']),
