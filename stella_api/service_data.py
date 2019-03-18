@@ -57,7 +57,7 @@ def store_bot_data(telegram_id, image_link, company_name, address, lat, lng):
     else:
         return 'photo is not recognized'
     session.close()
-    return 'Ok'
+    return f'Ok! \nA{rec_fuel_type}: {price} грн'
 
 
 def upload_image_to_dbx(file_id):
