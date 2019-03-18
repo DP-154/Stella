@@ -27,20 +27,17 @@ def comany_and_address(lat, long):
               .first())
 
         return fc.fuel_company_name, gs.address
-        
 
 
-def store_bot_data(tg_id, image_link, latitude, longitude):
-    #md_from_coordinates = MetaDataFromCoordinates(latitude, longitude)
-    #company_name = md_from_coordinates.get_name()
-    #address = md_from_coordinates.get_address()
-
-    company_name, address = comany_and_address(latitude, longitude)
-    
-    session = session_maker()
-    stored_data = db_store_start(session, tg_id, image_link, company_name, address)
+def store_bot_data(telegram_id, image_link, company_name, address, lat, lng):
+    # TODO maybe refactor with 1 argument - dict?
+    # TODO put in database GPS coordinates
 
     is_recognized, rec_fuel_type, price = digit_to_price(image_link)
+
+    session = session_maker()
+    stored_data = db_store_start(session, telegram_id, image_link, company_name, address)
+
     if is_recognized:
         is_premium = TMP_IS_PREMIUM
         fuel = db_get_fuel(session, rec_fuel_type, is_premium)
@@ -74,4 +71,4 @@ def upload_image_to_dbx(file_id):
     dbx_path = "/telegram_files/" + basename
     dbx_provider = DropBoxDataProvider(dbx_token)
     dbx_provider.file_upload(tg_down_path, dbx_path)
-    return dbx_path
+    return tg_down_path
