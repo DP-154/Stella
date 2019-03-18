@@ -1,5 +1,6 @@
 python-telegram-bot
 flask
+flask-login
 requests
 sqlalchemy
 psycopg2
@@ -10,6 +11,7 @@ opencv-python
 pytest
 dropbox
 click
+click-repl
 geopy
 googlemaps
 faker

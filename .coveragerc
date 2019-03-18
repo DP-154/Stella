@@ -4,6 +4,7 @@ omit =
     *__init__.py
     config.py
     constants.py
+    venv/*
 
 
 
