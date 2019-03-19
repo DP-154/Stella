@@ -15,7 +15,7 @@ app.register_blueprint(auth)
 app.register_blueprint(ui)
 
 login = LoginManager(app)
-login.login_view = 'login'
+login.login_view = 'auth.sign_in'
 
 
 @login.user_loader

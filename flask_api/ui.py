@@ -74,7 +74,7 @@ def prices():
     form = SendPhotoForm(meta={'csrf': False})
     if form.validate_on_submit():
         photo = form.photo.data
-        transport = DropBoxDataProvider(os.environ('DROPBOX_TOKEN'))
+        transport = DropBoxDataProvider(os.environ['DROPBOX_TOKEN'])
         filename = secure_filename(photo.filename)
         transport.file_upload(photo, ('/telegram_files/' + filename))
         flash('Thanks for uploading photo')
