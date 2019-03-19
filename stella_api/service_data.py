@@ -7,7 +7,7 @@ from database.queries import session_scope, update_image
 from database.models import GasStation, FuelCompany
 from database.db_store_data_bot import db_store_start, db_get_fuel, db_store_recognized
 #from stella_api.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
-from stella_api.image_recognition import digit_to_price
+# from stella_api.image_recognition import digit_to_price
 from transport.data_provider import DropBoxDataProvider
 
 TMP_IS_PREMIUM = False
@@ -57,7 +57,7 @@ def store_bot_data(telegram_id, image_link, company_name, address, lat, lng):
     else:
         return 'photo is not recognized'
     session.close()
-    return 'Ok'
+    return f'Ok! \nA{rec_fuel_type}: {price} грн'
 
 
 def upload_image_to_dbx(file_id):
