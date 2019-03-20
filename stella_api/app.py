@@ -1,9 +1,9 @@
 import os
 
 from flask import Flask
-from flask_api.restful import restful
-from flask_api.auth import auth
-from flask_api.ui import ui
+from stella_api.restful import restful
+from stella_api.auth import auth
+from stella_api.ui import ui
 from flask_login import LoginManager
 from database.queries import session_scope
 from database.models import User
