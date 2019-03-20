@@ -71,11 +71,13 @@ def prices():
 
     ]
 
-    price_list = query_all_price_period(session_maker)
+    session = session_maker()
+    price_list = query_to_dict(query_all_price_period(session))
+
     form = SendPhotoForm(meta={'csrf': False})
     if form.validate_on_submit():
         photo = form.photo.data
-        transport = DropBoxDataProvider(os.environ('DROPBOX_TOKEN'))
+        transport = DropBoxDataProvider(os.environ['DROPBOX_TOKEN'])
         filename = secure_filename(photo.filename)
         transport.file_upload(photo, ('/telegram_files/' + filename))
         flash('Thanks for uploading photo')
@@ -88,4 +90,5 @@ def prices():
 @ui.route('/')
 def index():
     return render_template('index.html')
+
 
