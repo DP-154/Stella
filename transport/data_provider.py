@@ -4,7 +4,7 @@ from time import sleep
 import dropbox
 import requests
 from dropbox.exceptions import ApiError
-
+# from dropbox.files import WriteMode
 import constants
 
 
@@ -82,9 +82,9 @@ class DropBoxDataProvider(DataProviderBase):
                     waiting_attempt -= 1
             else:
                 with open(local_file, 'rb') as f:
-                    return self.dbx.files_upload(f.read(), dbx_file).path_lower
+                    return self.dbx.files_upload(f.read(), dbx_file, mode=dropbox.files.WriteMode.overwrite, strict_conflict=True).path_lower
         else:
-            return self.dbx.files_upload(local_file.read(), dbx_file).path_lower
+            return self.dbx.files_upload(local_file.read(), dbx_file, mode=dropbox.files.WriteMode.overwrite, strict_conflict=True).path_lower
 
     def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
