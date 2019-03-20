@@ -6,8 +6,8 @@ from database.db_connection import session_maker
 from database.queries import session_scope, update_image
 from database.models import GasStation, FuelCompany
 from database.db_store_data_bot import db_store_start, db_get_fuel, db_store_recognized
-#from stella_api.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
-from stella_api.image_recognition import digit_to_price
+#from processor.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
+from processor.image_recognition import digit_to_price
 from transport.data_provider import DropBoxDataProvider
 
 TMP_IS_PREMIUM = False

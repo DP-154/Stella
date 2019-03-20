@@ -4,11 +4,10 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
                      InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
                          CallbackQueryHandler
-from stella_api.service_data import store_bot_data, upload_image_to_dbx
+from services.service_data import store_bot_data, upload_image_to_dbx
 from bots.bot_services import get_station_by_location
 import bots.constants as const
 # TODO delete before production!:
-from stella_api.image_recognition import digit_to_price
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
