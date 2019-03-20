@@ -61,7 +61,7 @@ def store_bot_data(telegram_id, image_link, company_name, address, lat, lng):
     return f'Ok! \nA{rec_fuel_type}: {price} грн'
 
 
-def get_bot_upload_image_paths(file_id):
+def get_telegram_upload_image_paths(file_id):
     tg_file_link = f"https://api.telegram.org/bot{telegram_token}/getFile?file_id={file_id}"
     tg_file = requests.get(tg_file_link)
     loaded_data = json.loads(tg_file.text)
@@ -73,7 +73,7 @@ def get_bot_upload_image_paths(file_id):
     return tg_down_path, dbx_path
 
 
-def upload_image_to_dbx(down_path, dbx_path):
+def upload_image_to_dbx(file_path, dbx_path):
     dbx_provider = DropBoxDataProvider(dbx_token)
-    dbx_path = dbx_provider.file_upload(down_path, dbx_path)
+    dbx_path = dbx_provider.file_upload(file_path, dbx_path)
     return dbx_provider.get_file_tmp_link(dbx_path)
