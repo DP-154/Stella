@@ -94,3 +94,4 @@ def prices():
 def index():
     return render_template('index.html')
 
+

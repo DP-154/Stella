@@ -89,15 +89,15 @@
 
     <div class="card-body">
 
-      <h5 class="card-title">{{ item.name }}</h5>
+      <h5 class="card-title">{{ item.fuel_company_name }}</h5>
       <ul class=" card-text list-group list-group-flush">
-        {% for fuel in item.fuel %}
+        <!-- {% for fuel in item.fuel %} -->
         <li class="list-group-item">
-          <p>{{ fuel[0] }} {{ fuel[1] }}</p>
+          <p>{{ item.fuel_company_name }} {{ item.price }}</p>
         </li>
-        {% endfor %}
+        <!-- {% endfor %} -->
         <li class="list-group-item">
-          <p>{{ item.datetime }}</p>
+          <p>{{ item.date_of_price }}</p>
         </li>
       </ul>
 
