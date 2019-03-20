@@ -2,7 +2,7 @@ import os
 from pprint import pprint
 
 from flask import Blueprint, render_template, redirect, url_for, flash
-from flask_api.forms import SendPhotoForm
+from stella_api.forms import SendPhotoForm
 from transport.data_provider import DropBoxDataProvider
 from werkzeug.utils import secure_filename
 from flask_login import login_required
@@ -11,7 +11,7 @@ from database.queries import session_scope
 from database.db_connection import engine, session_maker
 from database.db_query_bot import query_all_price_period
 
-from flask_api.helpers import query_to_dict
+from stella_api.helpers import query_to_dict
 
 
 ui = Blueprint('ui', __name__, url_prefix='/')

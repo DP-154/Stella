@@ -1,9 +1,10 @@
 import json
 from flask import request, Blueprint, make_response
 from database.db_query_bot import (query_by_station_min_price, query_by_station_current_date, query_avg_all_stations)
-from flask_api import helpers
-from stella_api.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
-from stella_api.service_data import upload_image_to_dbx
+from stella_api import helpers
+from processor.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
+from transport.data_provider import DropBoxDataProvider
+from services.service_data import upload_image_to_dbx
 from flask_login import login_required
 from database.db_connection import session_maker
 
@@ -65,10 +66,10 @@ def avg_price():
 @login_required
 def upload_image():
     if request.headers['Content-Type'] in ['image/jpeg', 'image/png', 'image/tiff']:
-        request.files
-
-    else:
-        return response()
-    file_id = request_data["file_id"]
-    dbx_path = upload_image_to_dbx(file_id)
-    return json.dumps({"dropbox_path": dbx_path})
+        dbx_path = ''
+        DropBoxDataProvider.file_upload(request.files, dbx_path)
+    elif request.headers['Content-Type'] == 'application/json':
+        request_data = request.get_json()
+        file_id = request_data["file_id"]
+        dbx_path = upload_image_to_dbx(file_id)
+        return json.dumps({"dropbox_path": dbx_path})

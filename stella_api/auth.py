@@ -2,7 +2,7 @@ from flask import Blueprint, request, redirect, flash, url_for, render_template
 from flask_login import current_user, login_user, logout_user
 from database.models import User
 from database.db_connection import session_maker
-from flask_api.forms import SignInForm, SignUpForm
+from stella_api.forms import SignInForm, SignUpForm
 from werkzeug.urls import url_parse
 
 auth = Blueprint('auth', __name__, url_prefix='/auth')
