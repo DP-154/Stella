@@ -6,7 +6,10 @@ from flask_api.forms import SendPhotoForm
 from transport.data_provider import DropBoxDataProvider
 from werkzeug.utils import secure_filename
 from flask_login import login_required
+
 from database.queries import session_scope
+from database.db_connection import engine, session_maker
+from database.db_query_bot import query_all_price_period
 
 from flask_api.helpers import query_to_dict
 
@@ -70,7 +73,10 @@ def prices():
         },
 
     ]
-
+    
+    with session_scope() as session:
+        price_list = query_to_dict(query_all_price_period(session))
+    
     form = SendPhotoForm(meta={'csrf': False})
     if form.validate_on_submit():
         photo = form.photo.data
