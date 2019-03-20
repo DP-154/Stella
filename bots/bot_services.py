@@ -31,4 +31,4 @@ def get_station_by_location(lat, lng):
                     'lat': station_lat,
                     'lng': station_lng
                     })
-    return res_list
+            return res_list
