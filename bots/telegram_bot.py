@@ -4,11 +4,10 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
                      InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
                          CallbackQueryHandler
-from stella_api.service_data import store_bot_data, upload_image_to_dbx
+from services.service_data import store_bot_data, upload_image_to_dbx
 from bots.bot_services import get_station_by_location
 import bots.constants as const
 # TODO delete before production!:
-from stella_api.image_recognition import digit_to_price
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -102,12 +101,12 @@ def dataloc(bot, update):
     return start(bot, update)
 
 
-def help(bot, update):
+def helpme(bot, update):
     update.message.reply_text("Still in development. /start")
 
 
-def error(bot, update, error):
-    logger.warning("Update {} caused error {}".format(update, error))
+def error(bot, update, err):
+    logger.warning("Update {} caused error {}".format(update, err))
 
 
 def cancel(bot, update):
@@ -121,22 +120,25 @@ def send_file_dbx(bot, update, user_data):
     elif update.message.photo:
         file_id = update.message.photo[-1].file_id
     else:
+        file_id = None
         pass
-    user_id = update.message.from_user.username
+    user_id = update.message.from_user.id
     station_name = user_data['gas_st']['name']
     adress = user_data['gas_st']['adress']
     lat, lng = user_data['gas_st']['lat'], user_data['gas_st']['lng']
     dbx_path = upload_image_to_dbx(file_id)
     bot.send_message(chat_id=update.message.chat_id, text="download success! "+dbx_path)
-# TODO uncomment to solve trouble with alchemy:
-    #response = store_bot_data(telegram_id=user_id, image_link=dbx_path, company_name=station_name,
-    #                          address=adress, lat=lat, lng=lng)
+    response = store_bot_data(telegram_id=user_id, image_link=dbx_path, company_name=station_name,
+                              address=adress, lat=lat, lng=lng)
+    bot.send_message(chat_id=update.message.chat_id, text=response)
+    """
     is_recognized, fuel_type, price = digit_to_price(dbx_path)
     if is_recognized:
         bot.send_message(chat_id=update.message.chat_id, text=f"Recognized!\n"
-        f"A{fuel_type}: {price}грн")
+                         f"A{fuel_type}: {price}грн")
     else:
         bot.send_message(chat_id=update.message.chat_id, text="Failed to recognize")
+    """
     return start(bot, update)
 
 
@@ -162,7 +164,7 @@ def main(poll=True):
         fallbacks=[CommandHandler('cancel', cancel)]
     )
     disp.add_handler(conv_handler)
-    disp.add_handler(CommandHandler("help", help))
+    disp.add_handler(CommandHandler("help", helpme))
     disp.add_handler(CommandHandler("start", start))
     disp.add_error_handler(error)
 

@@ -2,7 +2,7 @@ from os import path
 
 import pytest
 
-from stella_api.image_recognition import digit_to_price, DigitDetection, digit_recognition
+from processor.image_recognition import digit_to_price, DigitDetection, digit_recognition
 
 SAMPLE_IMG = 'images/file_69.png'
 IMG_NEG = 'images/file_0.jpg'

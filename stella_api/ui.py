@@ -2,20 +2,23 @@ import os
 from pprint import pprint
 
 from flask import Blueprint, render_template, redirect, url_for, flash
-from flask_api.forms import SendPhotoForm
+from stella_api.forms import SendPhotoForm
 from transport.data_provider import DropBoxDataProvider
 from werkzeug.utils import secure_filename
+from flask_login import login_required
 
-from flask_api.helpers import query_to_dict
-
+from database.queries import session_scope
 from database.db_connection import engine, session_maker
 from database.db_query_bot import query_all_price_period
+
+from stella_api.helpers import query_to_dict
 
 
 ui = Blueprint('ui', __name__, url_prefix='/')
 
 
 @ui.route('/prices', methods=['POST', 'GET'])
+@login_required
 def prices():
     price_list = [
         {
@@ -70,10 +73,10 @@ def prices():
         },
 
     ]
-
-    session = session_maker()
-    price_list = query_to_dict(query_all_price_period(session))
-
+    
+    with session_scope() as session:
+        price_list = query_to_dict(query_all_price_period(session))
+    
     form = SendPhotoForm(meta={'csrf': False})
     if form.validate_on_submit():
         photo = form.photo.data
