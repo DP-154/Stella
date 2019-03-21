@@ -12,7 +12,6 @@ app = Flask(__name__)
 app.secret_key = os.environ['FLASK_SECRET_KEY']
 app.register_blueprint(restful)
 app.register_blueprint(auth)
-app.register_blueprint(base)
 app.register_blueprint(ui)
 
 login = LoginManager(app)

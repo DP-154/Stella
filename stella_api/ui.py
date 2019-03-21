@@ -76,6 +76,20 @@ def prices():
     
     with session_scope() as session:
         price_list = query_to_dict(query_all_price_period(session))
+        price_list = list(dict(price_list).values())
+        date_to_str = lambda d: f'{d.month}/{d.day}/{d.year}'
+        attr_getter = lambda x: (x['fuel_company_name'], date_to_str(x['date_of_price']))
+        companies_and_dates = map(attr_getter, price_list)
+        d = {k: [] for k in dict.fromkeys(companies_and_dates)}
+        fields = ['date_of_price', 'fuel_company_name', 'fuel_type', 'price']
+        for record in price_list:
+            date, company, fuel_type, price = [record[f] for f in fields]
+            date = date_to_str(date)
+            d[(company, date)].append((fuel_type, price))
+        price_list = [{'fuel_company_name': company,
+                       'fuel': [{'date': d, 'price': p} for d, p in fuels],
+                       'date_of_price': date}
+                      for (company, date), fuels in d.items()]
     
     form = SendPhotoForm(meta={'csrf': False})
     if form.validate_on_submit():
@@ -93,5 +107,3 @@ def prices():
 @ui.route('/')
 def index():
     return render_template('index.html')
-
-

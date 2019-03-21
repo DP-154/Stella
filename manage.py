@@ -15,6 +15,8 @@ def cli(ctx):
 @click.option('--check', is_flag=True)
 def run(what, deamon, check):
     """ application entry point """
+    import os
+    print(os.eviron)
     if check:
         from database.database_manupulation import create_all
         create_all()
@@ -40,7 +42,7 @@ def run(what, deamon, check):
                                      stderr=fd)
                 print(p.pid)
         else:
-            from flask_api.app import app
+            from stella_api.app import app
             app.run(host='0.0.0.0', port=5000)
     elif what == 'all':
         import subprocess
