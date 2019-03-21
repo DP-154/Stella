@@ -12,18 +12,57 @@ def cli(ctx):
 @cli.command()
 @click.argument('what')
 @click.option('--deamon', is_flag=True)
-def run(what, deamon):
+@click.option('--check', is_flag=True)
+def run(what, deamon, check):
     """ application entry point """
+    import os
+    print(os.eviron)
+    if check:
+        from database.database_manupulation import create_all
+        create_all()
     if what == 'bot':
         if deamon:
             import subprocess
-            subprocess.Popen(['python', 'manage.py', 'run', 'bot'],
-                             cwd="/",
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
+            with open('bot_log', 'w') as fd:
+                p = subprocess.Popen(['python', 'manage.py', 'run', 'bot'],
+                                     cwd=".",
+                                     stdout=subprocess.DEVNULL,
+                                     stderr=fd)
+                print(p.pid)
         else:
             from bots.telegram_bot import main
             main()
+    elif what == 'flask':
+        if deamon:
+            import subprocess
+            with open('flask_log', 'w') as fd:
+                p = subprocess.Popen(['python', 'manage.py', 'run', 'flask'],
+                                     cwd=".",
+                                     stdout=subprocess.DEVNULL,
+                                     stderr=fd)
+                print(p.pid)
+        else:
+            from stella_api.app import app
+            app.run(host='0.0.0.0', port=5000)
+    elif what == 'all':
+        import subprocess
+        with open('bot_log', 'w') as fd:
+            p1 = subprocess.Popen(['python', 'manage.py', 'run', 'bot'],
+                                  cwd=".",
+                                  stdout=subprocess.DEVNULL,
+                                  stderr=fd)
+        with open('flask_log', 'w') as fd:
+            p2 = subprocess.Popen(['python', 'manage.py', 'run', 'flask'],
+                                  cwd=".",
+                                  stdout=subprocess.DEVNULL,
+                                  stderr=fd)
+        if not deamon:
+            print('running')
+            p1.wait()
+            p2.wait()
+        else:
+            print(p1.pid)
+            print(p2.pid)
     else:
         print(f'option not recognized: {what}')
 

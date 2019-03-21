@@ -5,6 +5,7 @@ from database.db_connection import session_maker
 from stella_api.forms import SignInForm, SignUpForm
 from werkzeug.urls import url_parse
 
+
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
