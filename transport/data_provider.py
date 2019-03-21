@@ -4,6 +4,7 @@ from time import sleep
 import requests
 from dropbox import Dropbox
 from dropbox.exceptions import ApiError
+from dropbox.files import WriteMode
 
 DROPBOX_SMOKE_URL = 'https://dropbox.com'
 
@@ -82,9 +83,10 @@ class DropBoxDataProvider(DataProviderBase):
                     waiting_attempt -= 1
             else:
                 with open(local_file, 'rb') as f:
-                    return self.dbx.files_upload(f.read(), dbx_file, autorename=True).path_lower
+                    return self.dbx.files_upload(f.read(), dbx_file, autorename=True,
+                                                 strict_conflict=True).path_lower
         else:
-            return self.dbx.files_upload(local_file.read(), dbx_file, autorename=True).path_lower
+            return self.dbx.files_upload(local_file.read(), dbx_file, autorename=True, strict_conflict=True).path_lower
 
     def file_move(self, dbx_file_from, dbx_file_to) -> str:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
