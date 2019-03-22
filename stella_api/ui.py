@@ -12,6 +12,7 @@ from database.db_connection import engine, session_maker
 from database.db_query_bot import query_all_price_period
 
 from stella_api.helpers import query_to_dict
+from services.service_data import upload_image_to_dbx
 
 
 ui = Blueprint('ui', __name__, url_prefix='/')
@@ -94,9 +95,8 @@ def prices():
     form = SendPhotoForm(meta={'csrf': False})
     if form.validate_on_submit():
         photo = form.photo.data
-        transport = DropBoxDataProvider(os.environ['DROPBOX_TOKEN'])
         filename = secure_filename(photo.filename)
-        transport.file_upload(photo, ('/telegram_files/' + filename))
+        upload_image_to_dbx(photo, ('/telegram_files/' + filename))
         flash('Thanks for uploading photo')
 
         return redirect(url_for('ui.prices'))

@@ -1,11 +1,12 @@
 from collections import namedtuple
 from time import sleep
 
-import dropbox
 import requests
+from dropbox import Dropbox
 from dropbox.exceptions import ApiError
-# from dropbox.files import WriteMode
-import constants
+from dropbox.files import WriteMode
+
+DROPBOX_SMOKE_URL = 'https://dropbox.com'
 
 
 class DataProviderBase:
@@ -49,10 +50,10 @@ def for_all_methods(decorator):
 
 @for_all_methods(_error_handler)
 class DropBoxDataProvider(DataProviderBase):
-    smoke_url = constants.DROPBOX_SMOKE_URL
+    smoke_url = DROPBOX_SMOKE_URL
 
     def __init__(self, acs_token):
-        self.dbx = dropbox.Dropbox(acs_token)
+        self.dbx = Dropbox(acs_token)
 
     def api_smoke(self) -> int:
         return len(self.dbx.files_list_folder('').entries)
@@ -61,13 +62,13 @@ class DropBoxDataProvider(DataProviderBase):
         result = namedtuple('Result', ['filename', 'filepatch'])
         return [result(el.name, el.path_lower) for el in self.dbx.files_list_folder(dbx_folder).entries]
 
-    def file_delete(self, dbx_file) -> dropbox.files.DeleteResult:
+    def file_delete(self, dbx_file) -> str:
         return self.dbx.files_delete_v2(dbx_file).metadata.path_lower
 
-    def file_download(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
+    def file_download(self, local_file, dbx_file) -> str:
         return self.dbx.files_download_to_file(local_file, dbx_file).path_lower
 
-    def file_upload(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
+    def file_upload(self, local_file, dbx_file) -> str:
         if isinstance(local_file, str):
             if local_file.startswith("https://"):
                 waiting_time = 3
@@ -82,12 +83,16 @@ class DropBoxDataProvider(DataProviderBase):
                     waiting_attempt -= 1
             else:
                 with open(local_file, 'rb') as f:
-                    return self.dbx.files_upload(f.read(), dbx_file, mode=dropbox.files.WriteMode.overwrite, strict_conflict=True).path_lower
+                    return self.dbx.files_upload(f.read(), dbx_file, autorename=True,
+                                                 strict_conflict=True).path_lower
         else:
-            return self.dbx.files_upload(local_file.read(), dbx_file, mode=dropbox.files.WriteMode.overwrite, strict_conflict=True).path_lower
+            return self.dbx.files_upload(local_file.read(), dbx_file, autorename=True, strict_conflict=True).path_lower
 
-    def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
+    def file_move(self, dbx_file_from, dbx_file_to) -> str:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
-    
-    def create_folder(self, dbx_folder) -> dropbox.files.RelocationResult:
+
+    def create_folder(self, dbx_folder) -> str:
         return self.dbx.files_create_folder_v2(dbx_folder).metadata.path_lower
+
+    def get_file_tmp_link(self, dbx_path) -> str:
+        return self.dbx.files_get_temporary_link(dbx_path).link
