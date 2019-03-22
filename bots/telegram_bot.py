@@ -3,17 +3,20 @@ import logging
 from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
                      InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
-                         CallbackQueryHandler
+                         CallbackQueryHandler, Handler
 from stella_api.service_data import store_bot_data, upload_image_to_dbx
 from bots.bot_services import get_station_by_location
 import bots.constants as const
-# TODO delete before production!:
-from stella_api.image_recognition import digit_to_price
+from database.db_query_bot import *
+from database.queries import session_scope
+from flask_api.helpers import query_to_list
+from pprint import pprint
+
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-PHOTO, CHOICE, SELECT_STATION, LOCATION, SET_DATA, GET_DATA, DATALOC, IN_DEV = range(8)
+PHOTO, CHOICE, SELECT_STATION, LOCATION, SET_DATA, GET_DATA, DATALOC, IN_DEV, PAGINATION = range(9)
 
 
 def start(bot, update):
@@ -95,19 +98,48 @@ def get_data_by_location(bot, update):
     return DATALOC
 
 
-def dataloc(bot, update):
-    bot.send_message(chat_id=update.effective_message.chat_id,
+def dataloc(bot, update, user_data):
+    msg = bot.send_message(chat_id=update.effective_message.chat_id,
                      text="Select types of fuel:\n\nIN DEVELOPMENT",
                      reply_markup=ReplyKeyboardRemove())
-    return start(bot, update)
+    with session_scope() as session:
+        response = query_all_price_period(session)
+    user_data['db_output'] = query_to_list(response)
+    user_data['gas_per_msg'] = 5
+    user_data['output_id'] = msg['message_id']
+
+    #bot.send_message(chat_id=update.effective_message.chat_id,
+    #                 text=output[0])
+    #pprint(output)
+    return pagination(bot, update, user_data)
+
+def pagination_output(stringlist, position, step):
+    string =""
+    limit = len(stringlist)
+    if position >= limit:
+        return 'END', position
+    for i in range(step):
+        if position >= limit:
+            break
+        string += stringlist[position]
+        position += 1
+    return string, position
+
+def pagination(bot, update, user_data):
+    output = user_data['db_output']
+
+    bot.send_message(chat_id=update.effective_message.chat_id,
+                     text=output[0]+f"{update.effective_message.message_id} {update.message.message_id}")
+    bot.edit_message_text(text=output[0], chat_id=update.effective_message.chat_id,
+                     message_id=user_data['output_id'])
 
 
-def help(bot, update):
+def helpme(bot, update):
     update.message.reply_text("Still in development. /start")
 
 
-def error(bot, update, error):
-    logger.warning("Update {} caused error {}".format(update, error))
+def error(bot, update, err):
+    logger.warning("Update {} caused error {}".format(update, err))
 
 
 def cancel(bot, update):
@@ -121,22 +153,17 @@ def send_file_dbx(bot, update, user_data):
     elif update.message.photo:
         file_id = update.message.photo[-1].file_id
     else:
+        file_id = None
         pass
-    user_id = update.message.from_user.username
+    user_id = update.message.from_user.id
     station_name = user_data['gas_st']['name']
     adress = user_data['gas_st']['adress']
     lat, lng = user_data['gas_st']['lat'], user_data['gas_st']['lng']
     dbx_path = upload_image_to_dbx(file_id)
     bot.send_message(chat_id=update.message.chat_id, text="download success! "+dbx_path)
-# TODO uncomment to solve trouble with alchemy:
-    #response = store_bot_data(telegram_id=user_id, image_link=dbx_path, company_name=station_name,
-    #                          address=adress, lat=lat, lng=lng)
-    is_recognized, fuel_type, price = digit_to_price(dbx_path)
-    if is_recognized:
-        bot.send_message(chat_id=update.message.chat_id, text=f"Recognized!\n"
-        f"A{fuel_type}: {price}грн")
-    else:
-        bot.send_message(chat_id=update.message.chat_id, text="Failed to recognize")
+    response = store_bot_data(telegram_id=user_id, image_link=dbx_path, company_name=station_name,
+                              address=adress, lat=lat, lng=lng)
+    bot.send_message(chat_id=update.message.chat_id, text=response)
     return start(bot, update)
 
 
@@ -152,17 +179,19 @@ def main(poll=True):
         states={
             CHOICE: [CallbackQueryHandler(start_button)],
             LOCATION: [MessageHandler(Filters.location, got_location, pass_user_data=True)],
-            GET_DATA: [MessageHandler(Filters.location, get_data_by_location), MessageHandler(Filters.text, dataloc)],
-            DATALOC: [CallbackQueryHandler(dataloc)],
+            GET_DATA: [MessageHandler(Filters.location, get_data_by_location),
+                       MessageHandler(Filters.text, dataloc, pass_user_data=True)],
+            DATALOC: [CallbackQueryHandler(dataloc, pass_user_data=True)],
             SELECT_STATION: [CallbackQueryHandler(select_station, pass_user_data=True)],
             PHOTO: [(MessageHandler(Filters.document, send_file_dbx, pass_user_data=True)),
-                    MessageHandler(Filters.photo, send_file_dbx, pass_user_data=True)]
+                    MessageHandler(Filters.photo, send_file_dbx, pass_user_data=True)],
+            PAGINATION: [MessageHandler(Filters.all, pagination, pass_user_data=True)]
         },
 
         fallbacks=[CommandHandler('cancel', cancel)]
     )
     disp.add_handler(conv_handler)
-    disp.add_handler(CommandHandler("help", help))
+    disp.add_handler(CommandHandler("help", helpme))
     disp.add_handler(CommandHandler("start", start))
     disp.add_error_handler(error)
 
