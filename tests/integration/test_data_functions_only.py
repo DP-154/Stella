@@ -53,7 +53,7 @@ def test_smoke_positive():
 def test_api_smoke_positive():
     dbdp = DropBoxDataProvider(ACS_TOKEN)
     res = dbdp.api_smoke()
-    exp = 1
+    exp = 3
     assert res == exp
 
 
