@@ -4,7 +4,7 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
                      InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
                          CallbackQueryHandler
-from services.service_data import store_bot_data, upload_image_to_dbx
+from services.service_data import store_bot_data, upload_image_to_dbx, get_telegram_upload_image_paths
 from bots.bot_services import get_station_by_location
 import bots.constants as const
 # TODO delete before production!:
@@ -126,9 +126,11 @@ def send_file_dbx(bot, update, user_data):
     station_name = user_data['gas_st']['name']
     adress = user_data['gas_st']['adress']
     lat, lng = user_data['gas_st']['lat'], user_data['gas_st']['lng']
-    dbx_path = upload_image_to_dbx(file_id)
+    tg_down_path, dbx_path = get_telegram_upload_image_paths(file_id)
+
+    dbx_link = upload_image_to_dbx(tg_down_path, dbx_path)
     bot.send_message(chat_id=update.message.chat_id, text="download success! "+dbx_path)
-    response = store_bot_data(telegram_id=user_id, image_link=dbx_path, company_name=station_name,
+    response = store_bot_data(telegram_id=user_id, image_link=dbx_link, company_name=station_name,
                               address=adress, lat=lat, lng=lng)
     bot.send_message(chat_id=update.message.chat_id, text=response)
     """

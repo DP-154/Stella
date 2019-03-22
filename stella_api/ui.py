@@ -9,6 +9,7 @@ from database.db_query_bot import query_all_price_period
 from stella_api.helpers import query_to_dict
 from services.service_data import upload_image_to_dbx
 
+
 ui = Blueprint('ui', __name__, url_prefix='/')
 
 
