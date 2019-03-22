@@ -1,10 +1,12 @@
 from collections import namedtuple
+from time import sleep
 
-import dropbox
 import requests
+from dropbox import Dropbox
 from dropbox.exceptions import ApiError
+from dropbox.files import WriteMode
 
-import constants
+DROPBOX_SMOKE_URL = 'https://dropbox.com'
 
 
 class DataProviderBase:
@@ -26,7 +28,7 @@ class DataProviderBase:
         raise NotImplementedError
 
 
-def _answer(f):
+def _error_handler(f):
     def wrapper(*args):
         try:
             return f(*args)
@@ -46,12 +48,12 @@ def for_all_methods(decorator):
     return decorate
 
 
-@for_all_methods(_answer)
+@for_all_methods(_error_handler)
 class DropBoxDataProvider(DataProviderBase):
-    smoke_url = constants.DROPBOX_SMOKE_URL
+    smoke_url = DROPBOX_SMOKE_URL
 
     def __init__(self, acs_token):
-        self.dbx = dropbox.Dropbox(acs_token)
+        self.dbx = Dropbox(acs_token)
 
     def api_smoke(self) -> int:
         return len(self.dbx.files_list_folder('').entries)
@@ -60,27 +62,37 @@ class DropBoxDataProvider(DataProviderBase):
         result = namedtuple('Result', ['filename', 'filepatch'])
         return [result(el.name, el.path_lower) for el in self.dbx.files_list_folder(dbx_folder).entries]
 
-    def file_delete(self, dbx_file) -> dropbox.files.DeleteResult:
+    def file_delete(self, dbx_file) -> str:
         return self.dbx.files_delete_v2(dbx_file).metadata.path_lower
 
-    def file_download(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
+    def file_download(self, local_file, dbx_file) -> str:
         return self.dbx.files_download_to_file(local_file, dbx_file).path_lower
 
-    def file_upload(self, local_file, dbx_file) -> dropbox.files.FileMetadata:
+    def file_upload(self, local_file, dbx_file) -> str:
         if isinstance(local_file, str):
             if local_file.startswith("https://"):
+                waiting_time = 3
+                waiting_attempt = 60
                 url_result = self.dbx.files_save_url(dbx_file, local_file)
-                if url_result.is_complete():
-                    # TODO fix this
-                    return url_result.get_complete().path_lower
+                job_id = url_result.get_async_job_id()
+                while waiting_attempt > 0:
+                    st = self.dbx.files_save_url_check_job_status(job_id)
+                    if st.is_complete():
+                        return st.get_complete().path_lower
+                    sleep(waiting_time)
+                    waiting_attempt -= 1
             else:
                 with open(local_file, 'rb') as f:
-                    return self.dbx.files_upload(f.read(), dbx_file).path_lower
+                    return self.dbx.files_upload(f.read(), dbx_file, autorename=True,
+                                                 strict_conflict=True).path_lower
         else:
-            return self.dbx.files_upload(local_file.read(), dbx_file).path_lower
+            return self.dbx.files_upload(local_file.read(), dbx_file, autorename=True, strict_conflict=True).path_lower
 
-    def file_move(self, dbx_file_from, dbx_file_to) -> dropbox.files.RelocationResult:
+    def file_move(self, dbx_file_from, dbx_file_to) -> str:
         return self.dbx.files_move_v2(dbx_file_from, dbx_file_to).metadata.path_lower
-    
-    def create_folder(self, dbx_folder) -> dropbox.files.RelocationResult:
+
+    def create_folder(self, dbx_folder) -> str:
         return self.dbx.files_create_folder_v2(dbx_folder).metadata.path_lower
+
+    def get_file_tmp_link(self, dbx_path) -> str:
+        return self.dbx.files_get_temporary_link(dbx_path).link

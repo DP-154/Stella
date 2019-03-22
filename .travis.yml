@@ -7,8 +7,8 @@ install:
 - pipenv install --dev
 - pip install pytest-cov
 script:
-  - pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/unit
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/integration; fi'
+  - python -m pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/unit
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then python -m pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/integration; fi'
 notifications:
   email:
     on_success: never

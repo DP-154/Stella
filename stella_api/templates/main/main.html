@@ -13,8 +13,7 @@
 
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="user_dropdown">
       <a class="dropdown-item" href="#">Settings</a>
-      <a class="dropdown-item" href="#">Log out</a>
-
+      <a class="dropdown-item" href="{{ url_for('auth.log_out') }}">Log out</a>
     </div>
   </div>
 
@@ -26,8 +25,36 @@
 
   <div class="row justify-content-around">
 
-    <div class="col-2">
-      <button type="button" class="btn btn-primary">Add photo</button>
+    <div class="col-2 ">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-photo-modal">Add photo</button>
+      <div class="modal fade" id="add-photo-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalCenterTitle">Upload photo</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <form action="" method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+
+                <div class="group-form">
+                  {{ form.hidden_tag() }}
+                  {{ form.photo }}
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Send file</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="col-2">
@@ -62,15 +89,15 @@
 
     <div class="card-body">
 
-      <h5 class="card-title">{{ item.name }}</h5>
+      <h5 class="card-title">{{ item.fuel_company_name }}</h5>
       <ul class=" card-text list-group list-group-flush">
-        {% for fuel in item.fuel %}
+        <!-- {% for fuel in item.fuel %} -->
         <li class="list-group-item">
-          <p>{{ fuel[0] }} {{ fuel[1] }}</p>
+          <p>{{ fuel.date }} {{ fuel.price }}</p>
         </li>
-        {% endfor %}
+        <!-- {% endfor %} -->
         <li class="list-group-item">
-          <p>{{ item.datetime }}</p>
+          <p>{{ item.date_of_price }}</p>
         </li>
       </ul>
 
@@ -81,5 +108,4 @@
 </div>
 {% endblock content %}
 
-<!--<div>Icons made by <a href="https://www.flaticon.com/<?=_('authors').'/'?>smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" 		    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 		    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>-->
 </body>
