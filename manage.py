@@ -15,8 +15,6 @@ def cli(ctx):
 @click.option('--check', is_flag=True)
 def run(what, deamon, check):
     """ application entry point """
-    import os
-    print(os.eviron)
     if check:
         from database.database_manupulation import create_all
         create_all()
