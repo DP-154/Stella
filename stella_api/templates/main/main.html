@@ -12,7 +12,7 @@
     </a>
 
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="user_dropdown">
-      <a class="dropdown-item" href="#">Settings</a>
+      <a class="dropdown-item" href="#">Logged in as</a>
       <a class="dropdown-item" href="{{ url_for('auth.log_out') }}">Log out</a>
     </div>
   </div>
@@ -37,11 +37,16 @@
               </button>
             </div>
 
-            <form action="" method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data">
+              {{ form.hidden_tag() }}
               <div class="modal-body">
+                {% if form.company %}
+                <div class="group-form">
+                  {{ form.company }}
+                </div>
+                {% endif %}
 
                 <div class="group-form">
-                  {{ form.hidden_tag() }}
                   {{ form.photo }}
                 </div>
 
@@ -84,18 +89,18 @@
 
 <div id="prices" class="container-flex" style="overflow:scroll; white-space:nowrap; overflow-y:hidden; max-height:30rem;">
 
-  {% for item in price_list%}
-  <div class="card" style="display:inline-block; width:12rem; margin:2rem;">
+  {% for item in price_list %}
+  <div class="card" style="display:inline-block; width:12rem; margin:1rem;">
 
     <div class="card-body">
 
       <h5 class="card-title">{{ item.fuel_company_name }}</h5>
       <ul class=" card-text list-group list-group-flush">
-        <!-- {% for fuel in item.fuel %} -->
+
         <li class="list-group-item">
-          <p>{{ fuel.date }} {{ fuel.price }}</p>
+          <p>{{ item.fuel_type }} {{ item.price }}</p>
         </li>
-        <!-- {% endfor %} -->
+
         <li class="list-group-item">
           <p>{{ item.date_of_price }}</p>
         </li>
