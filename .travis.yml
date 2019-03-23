@@ -7,7 +7,7 @@ install:
 - pip install pytest pytest-cov
 script:
 - python -m pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/unit
-- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; sudo apt-get install -y docker-compose && docker-compose run web python3.7 -m pytest --cov-report term-missing --cov-config
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sudo apt-get install -y docker-compose && docker-compose run web python3.7 -m pytest --cov-report term-missing --cov-config
   .coveragerc --cov=./ ./tests/integration; fi
 notifications:
   email:
