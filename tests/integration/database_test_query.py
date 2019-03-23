@@ -10,7 +10,7 @@ from database.database_manupulation import drop_all_tables, create_all, truncate
 from database.models import (User, FuelCompany, Fuel, GasStation, Images, Price)
 from database.queries import get_or_create
 
-TEST_CONNECT = environ['DATABASE_TEST_URL']
+TEST_CONNECT = environ['DATABASE_URL']
 
 engine = create_engine(TEST_CONNECT)
 SessionMaker = sessionmaker(bind=engine)
