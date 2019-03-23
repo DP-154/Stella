@@ -5,10 +5,10 @@ services:
     build:
       context: .
     env_file:
-      ~/env.list
+      env.list
     depends_on:
       - database
   database:
     image: postgres
     env_file:
-      ~/db_env.list
+      db_env.list
