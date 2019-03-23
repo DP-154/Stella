@@ -9,6 +9,7 @@ matplotlib
 scipy
 opencv-python
 pytest
+pytest-cov
 dropbox
 click
 click-repl
