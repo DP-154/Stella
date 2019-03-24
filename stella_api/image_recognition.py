@@ -1,29 +1,14 @@
-import numpy as np
-from scipy.misc.pilutil import imresize
 import cv2
-from matplotlib import pyplot as plt
+import numpy as np
+from keras.models import load_model
+from skimage import io
 
-DIGIT_WIDTH = 10
-DIGIT_HEIGHT = 20
-IMG_HEIGHT = 28
-IMG_WIDTH = 28
-CLASS_N = 10  # 0-9
-
-DIGITS_LOOKUP = {
-    (1, 1, 1, 0, 1, 1, 1): 0,
-    (0, 0, 1, 0, 0, 1, 0): 1,
-    (1, 0, 1, 1, 1, 1, 0): 2,
-    (1, 0, 1, 1, 0, 1, 1): 3,
-    (0, 1, 1, 1, 0, 1, 0): 4,
-    (1, 1, 0, 1, 0, 1, 1): 5,
-    (1, 1, 0, 1, 1, 1, 1): 6,
-    (1, 0, 1, 0, 0, 1, 0): 7,
-    (1, 1, 1, 1, 1, 1, 1): 8,
-    (1, 1, 1, 1, 0, 1, 1): 9
-}
+model = load_model('stella_api/my_model.h5')
+# https://github.com/keras-team/keras/issues/6462#issuecomment-319232504
+model._make_predict_function()
 
 
-class Digit_detection:
+class DigitDetection:
 
     def __init__(self, img_file):
         self.img_file = img_file
@@ -44,13 +29,11 @@ class Digit_detection:
 
         return final_bounding_rectangles
 
+
     def detection_roi_user_img(self):
 
-        im = cv2.imread(self.img_file)
-        blank_image = np.zeros((im.shape[0], im.shape[1], 3), np.uint8)
-        blank_image.fill(255)
+        im = io.imread(self.img_file)
         imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        plt.imshow(imgray)
         kernel = np.ones((5, 5), np.uint8)
 
         ret, thresh = cv2.threshold(imgray, 127, 255, 0)
@@ -61,70 +44,42 @@ class Digit_detection:
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         digits_rectangles = self._get_digits_(contours, hierarchy)
 
-        for rect in digits_rectangles:
-            x, y, w, h = rect
-            cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            im_digit = imgray[y:y + h, x:x + w]
-            im_digit = (255 - im_digit)
-            im_digit = imresize(im_digit, (IMG_WIDTH, IMG_HEIGHT))
         return digits_rectangles
 
+    @staticmethod
+    def crop_images(image,  roi):
 
-def crop_images(img_file, roi):
-    img = cv2.imread(img_file)
-    y = roi[1]
-    x = roi[0]
-    h = roi[1] + roi[3]
-    w = roi[0] + roi[2]
-    crop_img = img[y:h, x:w]
-    return crop_img
-
-
-def segments_detection(img_file, roi):
-    (x, y, w, h) = roi
-    (roiH, roiW, z) = img_file.shape
-    (dW, dH) = (int(roiW * 0.4), int(roiH * 0.4))
-    dHC = int(roiH * 0.05)
-
-    segments = [
-        ((0, 0), (w, dH)),  # top
-        ((0, 0), (dW, h // 2)),  # top-left
-        ((w - dW, 0), (w, h // 2)),  # top-right
-        ((0, (h // 2) - dHC), (w, (h // 2) + dHC)),  # center
-        ((0, h // 2), (dW, h)),  # bottom-left
-        ((w - dW, h // 2), (w, h)),  # bottom-right
-        ((0, h - dH), (w, h))  # bottom
-    ]
-    on = [0] * len(segments)
-    return (segments)
+        img = io.imread(image)
+        y = roi[1]
+        x = roi[0]
+        h = roi[1] + roi[3]
+        w = roi[0] + roi[2]
+        crop_img = img[y:h, x:w]
+        return crop_img
 
 
-def recognize_digit(img_file, roi):
-    on = [0] * 7
-    segments = segments_detection(img_file, roi)
-    for (i, ((xA, yA), (xB, yB))) in enumerate(segments):
-        segROI = img_file[yA:yB, xA:xB]
-        segROI = cv2.cvtColor(segROI, cv2.COLOR_BGR2GRAY)
-        total = cv2.countNonZero(segROI)
-        area = (xB - xA) * (yB - yA)
-
-        if total / float(area) > 0.5:
-            on[i] = 1
-    digit = DIGITS_LOOKUP[tuple(on)]
-    return digit, on, segments
+def digit_recognition(TEST_USER_IMG, roi):
+    crop_image1 = DigitDetection.crop_images(TEST_USER_IMG, roi)
+    img = cv2.cvtColor(crop_image1, cv2.COLOR_BGR2GRAY)
+    img = cv2.resize(img, (28, 28))
+    img = img[np.newaxis]
+    img = img.reshape(img.shape[0], 28, 28, 1)
+    return(np.argmax(model.predict(img)))
 
 
-if __name__ == '__main__':
-    TEST_USER_IMG = '/home/kerch007/Stella/stella_api/test_image.png'
-    image1 = Digit_detection(TEST_USER_IMG)
+def digit_to_price(img_path):
+
+    image1 = DigitDetection(img_path)
     roi = image1.detection_roi_user_img()
-    print(roi[2])
+    roi = sorted(roi, key=lambda x: int(x[0]))
+    if len(roi) == 6:
+        digit = []
+        for i in range(len(roi)):
+            digit.append(digit_recognition(img_path, roi[i]))
 
-    crop_image1 = crop_images(TEST_USER_IMG, roi[12])
-    import pytesseract
-
-    plt.imshow(crop_image1)
-    plt.show()
-
-    data = pytesseract.image_to_string(crop_image1, config='--psm 8 --oem 3 tessedit_char_whitelist=0123456789 ')
-    print(data)
+        brend = ''.join(map(str, digit[0:2]))
+        grn = ''.join(map(str, digit[2:4]))
+        coop = ''.join(map(str, digit[4:6]))
+        return (True, brend, grn + '.' + coop)
+    else:
+        return (False, None, None)

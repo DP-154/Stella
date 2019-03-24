@@ -1,27 +1,24 @@
 language: python
-python: 3.7
+python: 3.7.2
 dist: xenial
 sudo: true
 install:
 - pip install pipenv
 - pipenv install --dev
 - pip install pytest-cov
-matrix:
-  include:
-  - script: pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/unit
-  - script: pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/integration
+script:
+  - pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/unit
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then pytest --cov-report term-missing --cov-config .coveragerc --cov=./ ./tests/integration; fi'
 notifications:
   email:
     on_success: never
     on_failure: change
+before_install:
+- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_3256ad516826_key -iv $encrypted_3256ad516826_iv -in deploy_key.enc -out ~/deploy_key -d; fi'
+before_deploy:
+- bash docker_push
 deploy:
-  provider: heroku
-  app:
-    master: stella-app-dp
-    dev: stella-app-dp-dev
-  api_key:
-    secure: ACn/gNzWTLxERhpipnu7nHFFcct0nvsvIas+0S9mG9ZkKKDgjr6U4a7/YgOthkh6HPVMzBkYxdaCK3sJWy4g5j78VTxlYEWp7YB2agl3+TaswzfclGC+ojHiYMvbQouu+C1sLnXI0b9Bc81qImZDyv5a1jQxjv3TM9acf2WgKHPsisAyRUxbMcC0Ym+PKYcGkNhIJG1nLVXgqE8ZHARMrtLQ/jjlwpFmf2UGNQ/oyWze7zbIo4BEfmhyyo90QLOa9myXO8M+6DX7uLvk1U6HaQSr/4xXEQwaXN5nPDFrsFx2PRgah619lKrskD0ZYQrltOJ0ybznwrlo4zdmbXnkSJ5Vr24MxQzZ8bz3k5lVDuy1k6zw6Frjw4fcslFeO0NQzp8/WYsiLumfPeW/S2K4VsmJmYlGH2gfQBUo8tGLrPDAm/6jSjWnLxaCaxg2b7W2HblXAI1ML8UxnFq2QAH2p0Snlumcs75DRGlpDQ0Laqy9678QAd216OFI3FM9i/NMXmfyyZOxM7zNWDnjl28xxYha1PP3ZJB/iCcvVVUTghCIwVT/AUTjFszz1L78mBmhYE5vTAV0/+62aVVQb7pbbrh6l1TnbcUOGZStdtSIz0ZkTWXRYMXSrnjY+zWRW0eFxwu6EHsCTqR9P2HlZOqdOs2ycBHL4QawaE3fIpy0gh0=
-env:
-  global:
-  - secure: MyM5IY4IxXSV//vCMF4utQkSbqMtzNQJS384m9vKWALn71mTvwu1QNl8R/U2fKOE2gO37TKSKXFYP8sxwU7LPQ7dNKi0trsbx3235+Tg+9eU7kTx0jKaPMGsWvA9CFX9l/Cl5dtnDgljeFG2jvRy5ktYrYRWRIl6w3tcMIHrsAmyZcWNb+RHXkyP13QAb+v/8GSNdJhnYU/cd+os7N5/OUSvRwuwrojRszDM1xsTtYsITCZZedXoKyVHEtCtRGJ5VUUC2avHN1VMLlu2lbeecsZSOdzZpM9IPGzdGNS4kFYjJ1V197I1wEktgoAusUqd8IOUyZcaSu9/5M0Bdb2ByLfom1aT+am5m8qwoGez1XuiNhmFtowTj6Zi6jcU9H7qYTfvTB8A51yHbkkHgAcV4G3TnpgwzjCwslZG+G/0LTkKT2Cz5Wj2J4h956T7mJluneY5kE2gPfwQqntHGaijPfF+qjwPa+De1LpZPp13tWFnsBhCIBVzReRnoydLsgi2WaKJZ9Jqm+bPLtn1K+quXrfQJDZa7EJOiOpLnJ03zV/47FfVtkl6tatPChSr4L/tgwylSII92HcDuETTkl89IeQ+WJ3i51JO/YfKJE/7MRDe+/AGHSJwUljI04Asaif8QPft8v0AjLaBgAT7b+wruuXcuDPVvND3/sa3gmvL768=
-  - secure: C8lFeHXtT/eN1PXlnbd+YAWfB6WhsP5tDYFQJqNwYuipIx4MiroP/YFnewQ8lTXkq7IRMysmXcW/7wTmIQ4mb/Zx90m0bBLtkFrdjfvhaTSq2cK3FejM2r9F2Ux18FOC4gW/Mqfp1LU6r07SK0fUFb5a3GzK376HSwnwjuu55skIPYrGt96kwn8lF4oJkJgTpOLIXTqThCYpRSBPNOIDMPnMtMtR7LN+D7FoAeYPTkR8YNvCLr0nFzSdGWBPg0lFw43rA3w795hyITSfzWeZR5s0y6x2UQn4Y7pLxFe1yDC1dD4QfuiLBS03L9bUcPTTUWIUG8mTl6celaCe90TbI/B6CIr+nbZbyFKDjznWXEHIugN3Nw8hhoXJOFa7hcUIeKF6pumDCl89LpmWGX10r+og/5k7tdr+X4gIZD8biouhUKRNh1EfHpQMmbdjTFuWMIXMHzIc70VXn/PQbLFh8GrwtRXXO12EjcsfgKYE0o/YETrxDp2ObANzHFfgLn4zTSNDhr/3D5p3X6nZbTvyt3PEKqkekKETnqR+X6Sxyo+7yk0pDuC7p/Ms7DPEt14dJ0sJ7TcLj0+F6SEE7ZmIkJI5lSzXD4I16zvoxr+WemghZpCnbDl2K3zazGsPjaHUiPfIIGrP30d6hXuoZX+gxDaCRqCLc9f4ohppVg6mSjI=
+  provider: script
+  script: bash deploy
+  on:
+    branch: dev

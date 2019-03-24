@@ -1,0 +1,15 @@
+python-telegram-bot
+flask
+requests
+sqlalchemy
+psycopg2
+numpy
+matplotlib
+scipy
+opencv-python
+pytest
+dropbox
+click
+geopy
+googlemaps
+faker
