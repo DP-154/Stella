@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="width:300px; margin-top:5rem;">
+  <form action="" method="post">
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+    {% if field.type == "BooleanField" %}
+      <div class="form-check form-check-inline">
+        {{ field(class_="form-check-input", size=8) }}
+        {{ field.label(class_="form-check-label") }}
+      </div>
+    {% elif field.type == "SubmitField" %}
+      <div class="form-group">
+        {{ field(class_="btn btn-primary")}}
+      </div>
+    {% else %}
+      <div class="form-group">
+        <label>{{ field.label }}</label>
+        {{ field(size=32, class_="form-control", placeholder="" + field.name|string)}}
+        {% for error in field.errors %}
+        <span style="color:red;">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endfor %}
+  </form>
+</div>
+{% endblock content %}
