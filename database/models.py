@@ -72,7 +72,6 @@ class Images(Base):
     price_connections = relationship('Price', backref='image')
 
 
-
 class Price(Base):
     __tablename__ = 'price'
 
