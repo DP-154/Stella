@@ -19,6 +19,6 @@ flask-wtf
 tensorflow
 keras
 scikit-image
-googleplaces
+python-google-places
 plotly
 
