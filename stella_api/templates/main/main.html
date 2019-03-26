@@ -27,8 +27,8 @@
 
     <div class="col-2 ">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-photo-modal">Add photo</button>
-      <div class="modal fade" id="add-photo-modal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal fade bd-example-modal-lg" id="add-photo-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalCenterTitle">Upload photo</h5>
@@ -40,13 +40,12 @@
             <form method="post" enctype="multipart/form-data">
               {{ form.hidden_tag() }}
               <div class="modal-body">
-                {% if form.company %}
-                <div class="group-form">
-                  {{ form.company }}
+                {% if form.gas_station %}
+                <div class="group=form" style="min-height: 3rem;">
+                  {{ form.gas_station }}
                 </div>
                 {% endif %}
-
-                <div class="group-form">
+                <div class="group-form" style="min-height: 3rem;">
                   {{ form.photo }}
                 </div>
 
@@ -65,29 +64,11 @@
     <div class="col-2">
       <button type="button" class="btn btn-primary">Go to graphics</button>
     </div>
-
-    <div class="col-2">
-      <button type="button" class="btn btn-primary dropdown-toggle" id="filter-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filters</button>
-      <div class="dropdown-menu" aria-labelledby="filter-dropdown">
-        <a class="dropdown-item" href="#">Action</a>
-        <a class="dropdown-item" href="#">Another action</a>
-        <a class="dropdown-item" href="#">Something else here</a>
-      </div>
-    </div>
-
-    <div class="col-2">
-      <button type="button" class="btn btn-primary dropdown-toggle" id="sorting-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sorting</button>
-      <div class="dropdown-menu" aria-labelledby="sorting-dropdown">
-        <a class="dropdown-item" href="#">Ascending</a>
-        <a class="dropdown-item" href="#">Descending</a>
-      </div>
-    </div>
-
   </div>
 
 </div>
 
-<div id="prices" class="container-flex" style="overflow:scroll; white-space:nowrap; overflow-y:hidden; max-height:30rem;">
+<div id="prices" class="container-flex" style="overflow:scroll; white-space:nowrap; overflow-y:hidden;">
 
   {% for item in price_list %}
   <div class="card" style="display:inline-block; width:12rem; margin:1rem;">
@@ -96,10 +77,11 @@
 
       <h5 class="card-title">{{ item.fuel_company_name }}</h5>
       <ul class=" card-text list-group list-group-flush">
-
+        {% for j in item.fuel %}
         <li class="list-group-item">
-          <p>{{ item.fuel_type }} {{ item.price }}</p>
+          <p>{{ j.fuel_type }} {{ j.price }}</p>
         </li>
+        {% endfor %}
 
         <li class="list-group-item">
           <p>{{ item.date_of_price }}</p>

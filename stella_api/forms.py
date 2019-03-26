@@ -28,5 +28,6 @@ class SignUpForm(FlaskForm):
 
 class SendPhotoForm(FlaskForm):
     company = SelectField(u'Company', coerce=str)
+    gas_station = SelectField(u'GasStation', coerce=str)
     photo = FileField(validators=[FileRequired(u'file empty'), FileAllowed(['jpg', 'png'], 'Imagaes only')])
     submit = SubmitField()
