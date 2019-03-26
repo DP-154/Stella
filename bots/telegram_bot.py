@@ -130,8 +130,8 @@ def send_file_dbx(bot, update, user_data):
 
     dbx_link = upload_image_to_dbx(tg_down_path, dbx_path)
     bot.send_message(chat_id=update.message.chat_id, text="download success! "+dbx_path)
-    response = store_bot_data(telegram_id=user_id, image_link=dbx_link, company_name=station_name,
-                              address=adress, lat=lat, lng=lng)
+    response = store_bot_data(telegram_id=user_id, image_link=tg_down_path, image_path=dbx_path,
+                              company_name=station_name, address=adress)
     bot.send_message(chat_id=update.message.chat_id, text=response)
     """
     is_recognized, fuel_type, price = digit_to_price(dbx_path)

@@ -2,8 +2,9 @@ import cv2
 import numpy as np
 from keras.models import load_model
 from skimage import io
+from os import path
 
-model = load_model('my_model.h5')
+model = load_model(path.join(path.dirname(__file__), 'my_model.h5'))
 # https://github.com/keras-team/keras/issues/6462#issuecomment-319232504
 model._make_predict_function()
 
@@ -56,7 +57,7 @@ class BrsmDetect:
         self.img_path = img_path
 
     def preproces_image(self):
-        image = io.imread(self)
+        image = io.imread(self.img_path)
         image = cv2.resize(image, (1000, 1000))
         y = 0
         h = image.shape[0]
@@ -96,7 +97,7 @@ class BrsmDetect:
                     (True, 'ГАЗ', price[12] + '.' + price[13]))
 
         else:
-            return (False)
+            return (False, None, None)
 
 
 class YukonDetect:
@@ -105,7 +106,7 @@ class YukonDetect:
         self.img_path = img_path
 
     def preproces_image(self):
-        image = io.imread(self)
+        image = io.imread(self.img_path)
         image = cv2.resize(image, (1000, 1000))
         y = 0
         h = image.shape[0]
@@ -151,4 +152,4 @@ class YukonDetect:
                     (True, '92', price[4] + '.' + price[5]), (True, 'ДТ', price[6] + '.' + price[7]))
 
         else:
-            return (False)
+            return (False, None, None)
