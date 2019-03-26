@@ -41,6 +41,12 @@ def list_fuel_company_names(session):
     return list(map(attrgetter('fuel_company_name'), instances))
 
 
+def list_all_gas_station_names(session):
+    return session.query(FuelCompany.fuel_company_name, GasStation.address
+                         ).join(GasStation
+                                ).order_by(FuelCompany.fuel_company_name, GasStation.address).all()
+
+
 """
 following functions meant to be used in following flow:
 get image link, location and telegram id -> create base image ->
