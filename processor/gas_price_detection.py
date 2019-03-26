@@ -97,7 +97,7 @@ class BrsmDetect:
                     (True, 'ГАЗ', price[12] + '.' + price[13]))
 
         else:
-            return (False)
+            return (False, None, None)
 
 
 class YukonDetect:
@@ -152,4 +152,4 @@ class YukonDetect:
                     (True, '92', price[4] + '.' + price[5]), (True, 'ДТ', price[6] + '.' + price[7]))
 
         else:
-            return (False)
+            return (False, None, None)

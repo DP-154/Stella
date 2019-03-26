@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.fields import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
-from database.models import User
+from database.models import User, FuelCompany
 from database.db_connection import session_maker
 
 
@@ -27,5 +27,7 @@ class SignUpForm(FlaskForm):
 
 
 class SendPhotoForm(FlaskForm):
+    company = SelectField(u'Company', coerce=str)
+    gas_station = SelectField(u'GasStation', coerce=str)
     photo = FileField(validators=[FileRequired(u'file empty'), FileAllowed(['jpg', 'png'], 'Imagaes only')])
     submit = SubmitField()

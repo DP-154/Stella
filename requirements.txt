@@ -13,11 +13,12 @@ pytest-cov
 dropbox
 click
 click-repl
-geopy
-googlemaps
 faker
 keras
 flask-wtf
 tensorflow
 keras
 scikit-image
+python-google-places
+plotly
+
