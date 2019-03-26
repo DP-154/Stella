@@ -22,7 +22,7 @@ class Graph:
 
     def getGraph(self):
         dbdp = DropBoxDataProvider(os.environ['DROPBOX_TOKEN'])
-        py.plotly.tools.set_credentials_file(username='RnGoL', api_key='8eygz7dck4')
+        py.plotly.tools.set_credentials_file(username=os.environ['Plotly_username'], api_key=os.environ['Plotly_api_key'])
         # data_from_qery = query_to_dict(self.query)
 
         date = ['80', '92', '95']
@@ -87,6 +87,7 @@ class Graph:
             os.mkdir('graph_images')
 
         path = os.path.join(os.path.dirname(__file__), 'graph_images/')
+        path_crome_driver = os.path.join(os.path.dirname(__file__), 'chromedriver.exe')
 
         date = datetime.today().strftime('%Y-%m-%d_%H.%M.%S')
         html_file_name = f'Fuel-price-graph-{date}.html'
@@ -101,11 +102,11 @@ class Graph:
         chrome_options.accept_untrusted_certs = True
         chrome_options.assume_untrusted_cert_issuer = True
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("user-data-dir=C:/Users/RnGoL/Desktop/MY/seleniumTest")
+
         chrome_options.add_argument('headless')
         chrome_options.add_argument('window-size=1200x600')
 
-        driver = webdriver.Chrome(executable_path='C:/Users/RnGoL/Desktop/chromedriver.exe', chrome_options=chrome_options)
+        driver = webdriver.Chrome(executable_path=path_crome_driver, chrome_options=chrome_options)
         driver.get(f'{path}{html_file_name}')
         driver.save_screenshot(f'{path}{png_file_name}')
         time.sleep(1)
