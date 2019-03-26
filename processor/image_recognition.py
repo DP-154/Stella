@@ -3,7 +3,11 @@ import numpy as np
 from keras.models import load_model
 from skimage import io
 
-model = load_model('processor/my_model.h5')
+from os import path
+path_model=path.join(path.dirname(__file__), 'my_model.h5')
+model = load_model(path_model)
+
+#model = load_model('processor/my_model.h5')
 # https://github.com/keras-team/keras/issues/6462#issuecomment-319232504
 model._make_predict_function()
 
