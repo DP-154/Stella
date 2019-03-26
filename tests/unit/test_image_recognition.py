@@ -93,8 +93,8 @@ def test_yukon_recognition():
 def test_digit_to_price_negative():
     result = (YukonDetect(get_full_path(path.join('images', wrong_image)))
               .digit_to_price())
-    assert result is False, 'recognized price on wrong image'
+    assert result[0] is False, 'recognized price on wrong image'
 
     result = (BrsmDetect(get_full_path(path.join('images', wrong_image)))
               .digit_to_price())
-    assert result is False, 'recognized price on wrong image'
+    assert result[0] is False, 'recognized price on wrong image'
