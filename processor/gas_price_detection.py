@@ -100,7 +100,7 @@ class BrsmDetect:
                     (True, 'ГАЗ', price[12] + '.' + price[13]))
 
         else:
-            return ((False, None, None))
+            return (False, None, None)
 
 
 class YukonDetect:
@@ -151,8 +151,8 @@ class YukonDetect:
 
             price = [str(digit[i]) + str(digit[i + 1]) for i in range(0, len(digit), 2)]
 
-            return ((True, '95', price[0] + '.' + price[1]), (True, '95', price[2] + '.' + price[3]),
-                    (True, '92', price[4] + '.' + price[5]), (True, '92', price[6] + '.' + price[7]))
+            return ((True, '95+', price[0] + '.' + price[1]), (True, '95', price[2] + '.' + price[3]),
+                    (True, '92', price[4] + '.' + price[5]), (True, 'ДТ', price[6] + '.' + price[7]))
 
         else:
-            return ((False, None, None))
+            return (False, None, None)

@@ -84,6 +84,6 @@ def digit_to_price(img_path):
         brend = ''.join(map(str, digit[0:2]))
         grn = ''.join(map(str, digit[2:4]))
         coop = ''.join(map(str, digit[4:6]))
-        return ((True, brend, grn + '.' + coop))
+        return (True, brend, grn + '.' + coop)
     else:
-        return ((False, None, None))
+        return (False, None, None)
