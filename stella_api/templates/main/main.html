@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+<body>
+
+{% block navbar %}
+<nav class="navbar navbar-light bg-light">
+  {{ super() }}
+
+  <div class="nav-item dropdown">
+
+    <a class="nav-link dropdown-toggle" href="#" id="user_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <img src="{{ url_for('static', filename='user.svg') }}" height="30" width="30">
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="user_dropdown">
+      <a class="dropdown-item" href="#">Logged in as</a>
+      <a class="dropdown-item" href="{{ url_for('auth.log_out') }}">Log out</a>
+    </div>
+  </div>
+
+</nav>
+{% endblock navbar %}
+
+{% block content %}
+<div id="buttons" class="container-fluid" style="margin-top:3rem; margin-bottom:3rem;">
+
+  <div class="row justify-content-around">
+
+    <div class="col-2 ">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-photo-modal">Add photo</button>
+      <div class="modal fade bd-example-modal-lg" id="add-photo-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalCenterTitle">Upload photo</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+              {{ form.hidden_tag() }}
+              <div class="modal-body">
+                {% if form.gas_station %}
+                <div class="group=form" style="min-height: 3rem;">
+                  {{ form.gas_station }}
+                </div>
+                {% endif %}
+                <div class="group-form" style="min-height: 3rem;">
+                  {{ form.photo }}
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Send file</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-2">
+      <button type="button" class="btn btn-primary">Go to graphics</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="prices" class="container-flex" style="overflow:scroll; white-space:nowrap; overflow-y:hidden;">
+
+  {% for item in price_list %}
+  <div class="card" style="display:inline-block; width:12rem; margin:1rem;">
+
+    <div class="card-body">
+
+      <h5 class="card-title">{{ item.fuel_company_name }}</h5>
+      <ul class=" card-text list-group list-group-flush">
+        {% for j in item.fuel %}
+        <li class="list-group-item">
+          <p>{{ j.fuel_type }} {{ j.price }}</p>
+        </li>
+        {% endfor %}
+
+        <li class="list-group-item">
+          <p>{{ item.date_of_price }}</p>
+        </li>
+      </ul>
+
+
+    </div>
+  </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+
+</body>
