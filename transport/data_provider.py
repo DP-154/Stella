@@ -71,8 +71,8 @@ class DropBoxDataProvider(DataProviderBase):
     def file_upload(self, local_file, dbx_file) -> str:
         if isinstance(local_file, str):
             if local_file.startswith("https://"):
-                waiting_time = 3
-                waiting_attempt = 60
+                waiting_time = 0.5
+                waiting_attempt = 240
                 url_result = self.dbx.files_save_url(dbx_file, local_file)
                 job_id = url_result.get_async_job_id()
                 while waiting_attempt > 0:
