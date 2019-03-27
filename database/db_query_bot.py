@@ -36,6 +36,7 @@ def get_date_subquery(session, days) -> subquery:
         subquery_date = session.query(func.date(func.max(Price.date_of_price)).label("date_of_price")).subquery()
     return subquery_date
 
+# price on specific date on specific gas stations
 
 def query_by_station_current_date(session, company_name, gas_station, days=None) -> Query:
     subquery_date = get_date_subquery(session, days)
@@ -50,6 +51,7 @@ def query_by_station_current_date(session, company_name, gas_station, days=None)
 
     return result
 
+#avg fuel prices on specific date, all fuels, all companies
 
 def query_avg_all_stations(session, days=None) -> Query:
     subquery_date = get_date_subquery(session, days)
@@ -63,6 +65,7 @@ def query_avg_all_stations(session, days=None) -> Query:
 
     return result
 
+#find cheapest gas station on specific date
 
 def query_by_station_min_price(session, fuel_name, days=None) -> Query:
     subquery_date = get_date_subquery(session, days)
@@ -78,6 +81,8 @@ def query_by_station_min_price(session, fuel_name, days=None) -> Query:
     return result
 
 
+#avg price in all companies per period for every day
+
 def query_avg_price_period(session, fuel_name, day_from=None, day_to=None) -> Query:
     day_from, day_to = get_period(day_from, day_to)
     result = session.query(func.avg(Price.price).label("average_price"),
@@ -92,6 +97,7 @@ def query_avg_price_period(session, fuel_name, day_from=None, day_to=None) -> Qu
     ).group_by(Fuel.fuel_type, func.date(Price.date_of_price), FuelCompany.fuel_company_name
                ).order_by(func.date(Price.date_of_price).desc(), FuelCompany.fuel_company_name)
     return result
+
 
 
 def query_all_price_period(session, day_from=None, day_to=None) -> Query:
