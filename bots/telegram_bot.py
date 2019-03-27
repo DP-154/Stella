@@ -128,7 +128,7 @@ def send_file_dbx(bot, update, user_data):
     lat, lng = user_data['gas_st']['lat'], user_data['gas_st']['lng']
     tg_down_path, dbx_path = get_telegram_upload_image_paths(file_id)
 
-    dbx_link = upload_image_to_dbx(tg_down_path, dbx_path)
+    dbx_path, dbx_link = upload_image_to_dbx(tg_down_path, dbx_path)
     bot.send_message(chat_id=update.message.chat_id, text="download success! "+dbx_path)
     response = store_bot_data(telegram_id=user_id, image_link=tg_down_path, image_path=dbx_path,
                               company_name=station_name, address=adress)
