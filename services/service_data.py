@@ -35,8 +35,8 @@ def comany_and_address(lat, long):
 def store_bot_data(telegram_id, image_link, image_path, company_name, address):
     # TODO maybe refactor with 1 argument - dict?
     # TODO put in database GPS coordinates
-    with session_scope() as session:
-        stored_data = db_store_start(session, telegram_id, image_path, company_name, address)
+    session = session_maker()
+    stored_data = db_store_start(session, telegram_id, image_path, company_name, address)
 
     recognition_tuple = get_recognition_tuple(company_name, image_link)
     if isinstance(recognition_tuple[0], bool):
@@ -68,6 +68,7 @@ def store_bot_data(telegram_id, image_link, image_path, company_name, address):
                 res_str = res_str+f'{price} is not a float number \n'
         else:
             res_str = res_str+'string is not recognized \n'
+    session.close()
     return res_str
 
 
