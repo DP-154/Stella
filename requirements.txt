@@ -13,8 +13,6 @@ pytest-cov
 dropbox
 click
 click-repl
-geopy
-googlemaps
 faker
 keras
 flask-wtf
