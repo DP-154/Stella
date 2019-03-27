@@ -86,11 +86,11 @@ def get_telegram_upload_image_paths(file_id):
 def upload_image_to_dbx(file_path, dbx_path):
     dbx_provider = DropBoxDataProvider(dbx_token)
     dbx_path = dbx_provider.file_upload(file_path, dbx_path)
-    return dbx_provider.get_file_tmp_link(dbx_path)
+    return dbx_path, dbx_provider.get_file_tmp_link(dbx_path)
 
 
 def get_recognition_class(company_name):
-    company_dict = {('yukon', 'юкон','okko'): YukonDetect, ('brsm', 'брсм'): BrsmDetect}
+    company_dict = {('yukon', 'юкон'): YukonDetect, ('brsm', 'брсм'): BrsmDetect}
     for comp_dict_names in company_dict.keys():
         for name in comp_dict_names:
             if company_name.strip().lower().find(name) > -1:
