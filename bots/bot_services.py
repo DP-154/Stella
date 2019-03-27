@@ -39,7 +39,7 @@ def gas_station_info(lat, lng, radius=50):
         if "Дніпро" in address[0] and len(query_result) > 1:
             continue
         address[0] = address[0].replace('вулиця', 'вул.')
-        address[0] = address[0].replace('проспект', 'просп.')
+        address[0] = address[0].replace('проспект', 'пр.')
         res_list.append({
             'name': place.name.replace('АЗС', ''),
             'address': address[0] + ', ' + address[1],
