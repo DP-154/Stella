@@ -67,7 +67,6 @@ def setdata(bot, update, location, user_data, more=None):
                                     lng=location['longitude'],
                                     radius=user_data['radius']
                                     )
-        print(len(stations))
     else:
         stations = gas_station_info(lat=location['latitude'], lng=location['longitude'])
     if not stations:
