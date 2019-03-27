@@ -23,4 +23,3 @@ keras
 scikit-image
 python-google-places
 plotly
-googleplaces
