@@ -3,8 +3,6 @@ from geopy.geocoders import Nominatim, GoogleV3
 import googlemaps
 from googlemaps import places
 
-import bots.telegram_bot
-
 # TODO: antiduplicate function, that will delete stations with same adresses
 
 

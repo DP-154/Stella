@@ -23,5 +23,6 @@ def load_user(uid):
     with session_scope() as session:
         return session.query(User).filter(User.id == uid).first()
 
+
 if __name__ == '__main__':
     app.run(debug=True)

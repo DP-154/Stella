@@ -108,3 +108,9 @@ def query_all_price_period(session, day_from=None, day_to=None) -> Query:
                                                                     FuelCompany.fuel_company_name)
 
     return result
+
+
+def query_all_gas_stations(session):
+    result = session.query(GasStation.address, FuelCompany.fuel_company_name).join(FuelCompany)
+
+    return result

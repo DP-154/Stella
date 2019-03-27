@@ -11,7 +11,7 @@ from database.db_query_bot import days_to_date, get_period, query_by_station_min
 from database.models import Base
 from tests.integration.database_test_query import start_test_db
 
-TEST_CONNECT = environ['DATABASE_TEST_URL']
+TEST_CONNECT = environ['DATABASE_URL']
 
 
 @pytest.fixture(scope="module", autouse=True)
