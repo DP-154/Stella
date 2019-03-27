@@ -60,6 +60,6 @@ def pagination_output(stringlist, position, step):
         string += stringlist[position]
         position += 1
     curr_page = position // step
-    pageall = ceil(limit/step)
+    pageall = ceil(limit / step)
     string += f" --- page #{curr_page} of {pageall} ---"
     return string, position
