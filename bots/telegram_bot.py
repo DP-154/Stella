@@ -230,7 +230,9 @@ def send_file_dbx(bot, update, user_data):
     tg_down_path, dbx_path = get_telegram_upload_image_paths(file_id)
 
     dbx_path, dbx_link = upload_image_to_dbx(tg_down_path, dbx_path)
+
     msg = bot.send_message(chat_id=update.message.chat_id, text="download success!\nRecognition...")
+
     response = store_bot_data(telegram_id=user_id, image_link=tg_down_path, image_path=dbx_path,
                               company_name=station_name, address=address)
     bot.edit_message_text(chat_id=update.message.chat_id, message_id=msg['message_id'], text=response)
