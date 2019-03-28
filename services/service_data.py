@@ -35,14 +35,14 @@ def comany_and_address(lat, long):
 def store_bot_data(telegram_id, image_link, image_path, company_name, address):
     # TODO maybe refactor with 1 argument - dict?
     # TODO put in database GPS coordinates
-    with session_scope() as session:
-        stored_data = db_store_start(session, telegram_id, image_path, company_name, address)
-
+    session = session_maker()
+    stored_data = db_store_start(session, telegram_id, image_path, company_name, address)
     recognition_tuple = get_recognition_tuple(company_name, image_link)
     if isinstance(recognition_tuple[0], bool):
         count_tuple = 1
     else:
         count_tuple = len(recognition_tuple)
+
 
     res_str = ''
     recognition_result = namedtuple('rec_result', ['is_recognized', 'fuel_type', 'price'])
@@ -52,7 +52,6 @@ def store_bot_data(telegram_id, image_link, image_path, company_name, address):
             is_recognized, rec_fuel_type, price = recognition_tuple
         else:
             is_recognized, rec_fuel_type, price = recognition_tuple[row]
-
         if is_recognized:
             if price.replace('.', '', 1).isdigit():
                 rec_price = float(price)
@@ -63,11 +62,12 @@ def store_bot_data(telegram_id, image_link, image_path, company_name, address):
                 except RuntimeError:
                     res_str = res_str+f"there isn't a fuel {rec_fuel_type} \n"
                 else:
-                    res_str = res_str + f'{rec_fuel_type}: {price} грн \n'
+                    res_str = res_str + f'A{rec_fuel_type}: {price} uah \n'
             else:
                 res_str = res_str+f'{price} is not a float number \n'
         else:
             res_str = res_str+'string is not recognized \n'
+    session.close()
     return res_str
 
 
@@ -86,11 +86,11 @@ def get_telegram_upload_image_paths(file_id):
 def upload_image_to_dbx(file_path, dbx_path):
     dbx_provider = DropBoxDataProvider(dbx_token)
     dbx_path = dbx_provider.file_upload(file_path, dbx_path)
-    return dbx_provider.get_file_tmp_link(dbx_path)
+    return dbx_path, dbx_provider.get_file_tmp_link(dbx_path)
 
 
 def get_recognition_class(company_name):
-    company_dict = {('yukon', 'юкон','okko'): YukonDetect, ('brsm', 'брсм'): BrsmDetect}
+    company_dict = {('yukon', 'юкон'): YukonDetect, ('brsm', 'брсм'): BrsmDetect}
     for comp_dict_names in company_dict.keys():
         for name in comp_dict_names:
             if company_name.strip().lower().find(name) > -1:
