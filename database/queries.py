@@ -87,8 +87,8 @@ def update_image(session, image, recognition_result, location_result):
                        fuel_type=recognition_result.fuel_type,
                        is_premium=False)  # TODO: should be handled by recognition
     if not fuel:
-        raise RuntimeError('incorrect fuel type retrieved '
-                           'from recognition result')
+        get_or_create(session, Fuel, fuel_type=recognition_result.fuel_type, is_premium=False)
+        #raise RuntimeError('incorrect fuel type retrieved from recognition result')
 
     price = Price(price=recognition_result.price,
                   gas_station=location_result.gas_station,
