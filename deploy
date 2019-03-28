@@ -1,4 +1,6 @@
 #!/bin/bash
+openssl aes-256-cbc -K $encrypted_3256ad516826_key -iv $encrypted_3256ad516826_iv -in secrets.tar.enc -out ./secrets.tar -d
+tar xvf secrets.tar
 eval "$(ssh-agent -s)"
 chmod 600 ~/deploy_key
 ssh-add ~/deploy_key
