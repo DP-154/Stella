@@ -134,6 +134,7 @@ def dataloc(bot, update, user_data):
                           text="processing...")
     session = session_maker()
     response = query_all_price_period(session)
+    session.close()
     user_data['db_output'] = query_to_list(response)
     user_data['gas_per_msg'] = 5
     user_data['position'] = 0
