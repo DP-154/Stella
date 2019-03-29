@@ -2,7 +2,7 @@ import json
 from flask import request, Blueprint, make_response
 from database.db_query_bot import (query_by_station_min_price, query_by_station_current_date, query_avg_all_stations)
 from stella_api import helpers
-from processor.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
+# from processor.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
 from transport.data_provider import DropBoxDataProvider
 from services.service_data import upload_image_to_dbx
 from flask_login import login_required

@@ -57,6 +57,17 @@ def prices():
     return render_template('main/main.html', price_list=price_list, form=form)
 
 
+@ui.route('/graphics')
+@login_required
+def graphics():
+    return render_template('main/graphics.html')
+
+
 @ui.route('/')
 def index():
     return render_template('index.html')
+
+
+@ui.route('/test')
+def fot_fun():
+    return render_template('graphic_example.html')
