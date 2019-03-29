@@ -13,6 +13,10 @@ restful = Blueprint('restful', __name__, url_prefix='/restful')
 
 session = session_maker()
 
+# class BadRequest(Exception):
+#
+#     def __init__(self, message, status_code, paylod=None):
+
 
 @restful.route('/min_by_fuel', methods=['GET'])
 @login_required
@@ -26,6 +30,8 @@ def min_price():
     json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
     resp = make_response(json_data)
     resp.mimetype = 'application/json'
+    resp.status = 200
+
     return resp
 
 
@@ -45,6 +51,7 @@ def price_by_day():
     json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
     resp = make_response(json_data)
     resp.mimetype = 'application/json'
+    resp.status = 200
     return resp
 
 
@@ -59,6 +66,7 @@ def avg_price():
     json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
     resp = make_response(json_data)
     resp.mimetype = 'application/json'
+    resp.status = 200
     return resp
 
 
@@ -73,3 +81,4 @@ def upload_image():
         file_id = request_data["file_id"]
         dbx_path = upload_image_to_dbx(file_id)
         return json.dumps({"dropbox_path": dbx_path})
+
