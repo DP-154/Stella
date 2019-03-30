@@ -1,75 +1,128 @@
 import json
-from flask import request, Blueprint, make_response
-from database.db_query_bot import (query_by_station_min_price, query_by_station_current_date, query_avg_all_stations)
+from datetime import datetime
+
+from flask import request, Blueprint, make_response, jsonify
+from flask_restplus import Api, Resource, reqparse
+from database.db_query_bot import (query_by_station_min_price, query_by_station_current_date, query_avg_all_stations,
+                                   query_all_price_period, query_avg_price_period)
 from stella_api import helpers
-from processor.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
-from transport.data_provider import DropBoxDataProvider
+from processor.imageMetadata.coordinates_metadata import gasStationInfo
 from services.service_data import upload_image_to_dbx
 from flask_login import login_required
 from database.db_connection import session_maker
 
-
 restful = Blueprint('restful', __name__, url_prefix='/restful')
+api = Api(restful, doc='/docs')
 
 session = session_maker()
 
 
-@restful.route('/min_by_fuel', methods=['GET'])
-@login_required
-def min_price():
-    if request.headers['Content-Type'] == 'application/json':
-        request_data = request.get_json()
-    fuel_type = request_data["fuel_type"]
-    date_of_price = request_data["date_of_price"]
-    result = query_by_station_min_price(session, fuel_type, date_of_price)
-    result_dict = helpers.query_to_dict(result)
-    json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
+def get_date_param(cur_request, name):
+    date_param = cur_request.args.get(name, None)
+    if date_param:
+        date_param = datetime.strptime(date_param, '%d-%m-%Y').date()
+    return date_param
+
+
+def make_response_json(cur_dict):
+    json_data = json.dumps(cur_dict, default=helpers.to_serializable, ensure_ascii=False)
     resp = make_response(json_data)
     resp.mimetype = 'application/json'
     return resp
 
 
-@restful.route('/price_by_day', methods=['GET'])
-@login_required
-def price_by_day():
-    if request.headers['Content-Type'] == 'application/json':
-        request_data = request.get_json()
-    long = request_data["longitude"]
-    lat = request_data["latitude"]
-    date_of_price = request_data["date_of_price"]
-    company = MetaDataFromCoordinates(lat, long)
-    company_name = company.get_name()
-    company_address = company.get_address()
-    result = query_by_station_current_date(session, company_name, company_address, date_of_price)
-    result_dict = helpers.query_to_dict(result)
-    json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
-    resp = make_response(json_data)
-    resp.mimetype = 'application/json'
-    return resp
+# @login_required
+@api.route('/min_by_fuel')
+class MinPrice(Resource):
+    request_arguments = reqparse.RequestParser()
+    request_arguments.add_argument('fuel_type', type=str, required=True, default='92')
+    request_arguments.add_argument('date_of_price', type=str, help="Date format: day-month-year ")
+
+    @api.expect(request_arguments, validate=True)
+    def get(self):
+        result = query_by_station_min_price(session, request.args["fuel_type"],
+                                            get_date_param(request, 'date_of_price'))
+        result_dict = helpers.query_to_dict(result)
+        return make_response_json(result_dict)
 
 
-@restful.route('/avg_price', methods=['GET'])
-@login_required
-def avg_price():
-    if request.headers['Content-Type'] == 'application/json':
-        request_data = request.get_json()
-    date_of_price = request_data["date_of_price"]
-    result = query_avg_all_stations(session, date_of_price)
-    result_dict = helpers.query_to_dict(result)
-    json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
-    resp = make_response(json_data)
-    resp.mimetype = 'application/json'
-    return resp
+# @login_required
+@api.route('/price_by_day')
+class PriceByDay(Resource):
+    request_arguments = reqparse.RequestParser()
+    request_arguments.add_argument('longitude', type=float, required=True, help="longitude of gas station")
+    request_arguments.add_argument('latitude', type=float, required=True, help="latitude of gas station")
+    request_arguments.add_argument('date_of_price', type=str, help="Date format: day-month-year ")
+
+    @api.expect(request_arguments, validate=True)
+    def get(self):
+        #  TODO need to check with geoposition
+        companies = gasStationInfo(request.args["longitude"], request.args["latitude"])
+        # companies = [{'name': 'okko', 'adress': 'address1'}]
+        if len(companies) > 0:
+            company_name = companies[0]['name']
+            company_address = companies[0]['adress']
+            result = query_by_station_current_date(session, company_name, company_address,
+                                                   get_date_param(request, 'date_of_price'))
+            result_dict = helpers.query_to_dict(result)
+        else:
+            result_dict = {}
+        return make_response_json(result_dict)
 
 
-@restful.route('/upload_image', methods=['POST'])
-@login_required
-def upload_image():
-    if request.headers['Content-Type'] in ['image/jpeg', 'image/png', 'image/tiff']:
-        dbx_path = ''
-        DropBoxDataProvider.file_upload(request.files, dbx_path)
-    elif request.headers['Content-Type'] == 'application/json':
-        request_data = request.get_json()
-        file_id = request_data["file_id"]
-        dbx_path = upload_image_to_dbx(file_id)
-        return json.dumps({"dropbox_path": dbx_path})
+# @login_required
+@api.route('/avg_price')
+class AVGPrice(Resource):
+    request_arguments = reqparse.RequestParser()
+    request_arguments.add_argument('date_of_price', type=str, help="Date format: day-month-year ")
+
+    @api.expect(request_arguments, validate=True)
+    def get(self):
+        result = query_avg_all_stations(session, get_date_param(request, 'date_of_price'))
+        result_dict = helpers.query_to_dict(result)
+        return make_response_json(result_dict)
+
+
+@api.route('/avg_price_period')
+class AVGPricePeriod(Resource):
+    request_arguments = reqparse.RequestParser()
+    request_arguments.add_argument('fuel_type', type=str, required=True, default='92')
+    request_arguments.add_argument('date_from', type=str, help="Date format: day-month-year ")
+    request_arguments.add_argument('date_to', type=str, help="Date format: day-month-year ")
+
+    @api.expect(request_arguments, validate=True)
+    def get(self):
+        result = query_avg_price_period(session, request.args["fuel_type"],
+                                        get_date_param(request, 'date_from'), get_date_param(request, 'date_to'))
+        result_dict = helpers.query_to_dict(result)
+        return make_response_json(result_dict)
+
+
+@api.route('/all_price_period')
+class AllPricePeriod(Resource):
+    request_arguments = reqparse.RequestParser()
+    request_arguments.add_argument('date_from', type=str, help="Date format: day-month-year ")
+    request_arguments.add_argument('date_to', type=str, help="Date format: day-month-year ")
+
+    @api.expect(request_arguments, validate=True)
+    def get(self):
+        result = query_all_price_period(session, get_date_param(request, 'date_from'),
+                                        get_date_param(request, 'date_to'))
+        result_dict = helpers.query_to_dict(result)
+        return make_response_json(result_dict)
+
+
+# @login_required
+@api.route('/upload_image')
+class UploadImage(Resource):
+    request_arguments = reqparse.RequestParser()
+    request_arguments.add_argument('file_link', type=str, required=True, help="file link for uploading ")
+    request_arguments.add_argument('file_name', type=str, required=True)
+
+    @api.expect(request_arguments, validate=True)
+    def post(self):
+        file_path = request.args['file_link']
+        dbx_path = '/telegram_files/' + request.args['file_name']
+        dbx_path, dbx_link = upload_image_to_dbx(file_path, dbx_path)
+        result_dict = {"dropbox_path": dbx_path}
+        return make_response_json(result_dict)
