@@ -1,15 +1,15 @@
 import json
 from datetime import datetime
 
-from flask import request, Blueprint, make_response, jsonify
+from flask import request, Blueprint, make_response
 from flask_restplus import Api, Resource, reqparse
+
+from database.db_connection import session_maker
 from database.db_query_bot import (query_by_station_min_price, query_by_station_current_date, query_avg_all_stations,
                                    query_all_price_period, query_avg_price_period)
-from stella_api import helpers
 from processor.imageMetadata.coordinates_metadata import gasStationInfo
 from services.service_data import upload_image_to_dbx
-from flask_login import login_required
-from database.db_connection import session_maker
+from stella_api import helpers
 
 restful = Blueprint('restful', __name__, url_prefix='/restful')
 api = Api(restful, doc='/docs')
@@ -31,7 +31,6 @@ def make_response_json(cur_dict):
     return resp
 
 
-# @login_required
 @api.route('/min_by_fuel')
 class MinPrice(Resource):
     request_arguments = reqparse.RequestParser()
@@ -40,13 +39,13 @@ class MinPrice(Resource):
 
     @api.expect(request_arguments, validate=True)
     def get(self):
-        result = query_by_station_min_price(session, request.args["fuel_type"],
+        """Returns the minimum price for fuel at particular date (if date is omit at max date with info)."""
+        result = query_by_station_min_price(session, request.args.get("fuel_type"),
                                             get_date_param(request, 'date_of_price'))
         result_dict = helpers.query_to_dict(result)
         return make_response_json(result_dict)
 
 
-# @login_required
 @api.route('/price_by_day')
 class PriceByDay(Resource):
     request_arguments = reqparse.RequestParser()
@@ -56,9 +55,8 @@ class PriceByDay(Resource):
 
     @api.expect(request_arguments, validate=True)
     def get(self):
-        #  TODO need to check with geoposition
+        """Returns all prices for gas station at particular date (if date is omit at max date with info)."""
         companies = gasStationInfo(request.args["longitude"], request.args["latitude"])
-        # companies = [{'name': 'okko', 'adress': 'address1'}]
         if len(companies) > 0:
             company_name = companies[0]['name']
             company_address = companies[0]['adress']
@@ -70,7 +68,6 @@ class PriceByDay(Resource):
         return make_response_json(result_dict)
 
 
-# @login_required
 @api.route('/avg_price')
 class AVGPrice(Resource):
     request_arguments = reqparse.RequestParser()
@@ -78,6 +75,7 @@ class AVGPrice(Resource):
 
     @api.expect(request_arguments, validate=True)
     def get(self):
+        """Returns average prices for all gas station at particular date (if date is omit at max date with info)."""
         result = query_avg_all_stations(session, get_date_param(request, 'date_of_price'))
         result_dict = helpers.query_to_dict(result)
         return make_response_json(result_dict)
@@ -92,7 +90,8 @@ class AVGPricePeriod(Resource):
 
     @api.expect(request_arguments, validate=True)
     def get(self):
-        result = query_avg_price_period(session, request.args["fuel_type"],
+        """Returns average prices for fuel at period (if dates are omit for last 10 days)."""
+        result = query_avg_price_period(session, request.args.get("fuel_type"),
                                         get_date_param(request, 'date_from'), get_date_param(request, 'date_to'))
         result_dict = helpers.query_to_dict(result)
         return make_response_json(result_dict)
@@ -106,13 +105,13 @@ class AllPricePeriod(Resource):
 
     @api.expect(request_arguments, validate=True)
     def get(self):
+        """Returns all prices for period (if dates are omit for last 10 days)."""
         result = query_all_price_period(session, get_date_param(request, 'date_from'),
                                         get_date_param(request, 'date_to'))
         result_dict = helpers.query_to_dict(result)
         return make_response_json(result_dict)
 
 
-# @login_required
 @api.route('/upload_image')
 class UploadImage(Resource):
     request_arguments = reqparse.RequestParser()
@@ -121,6 +120,7 @@ class UploadImage(Resource):
 
     @api.expect(request_arguments, validate=True)
     def post(self):
+        """Saves the file from link to dropbox as file_name."""
         file_path = request.args['file_link']
         dbx_path = '/telegram_files/' + request.args['file_name']
         dbx_path, dbx_link = upload_image_to_dbx(file_path, dbx_path)
