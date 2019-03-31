@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, date
 
 from flask import request, Blueprint, make_response
 from flask_restplus import Api, Resource, reqparse
@@ -40,10 +40,22 @@ class MinPrice(Resource):
     @api.expect(request_arguments, validate=True)
     def get(self):
         """Returns the minimum price for fuel at particular date (if date is omit at max date with info)."""
+        if not request.args.get("fuel_type"):
+            return make_response_json({
+                'status': 'fail',
+                'reason': 'no fuel type provided'
+            })
+        try:
+            get_date_param(request, 'date_of_price')
+        except ValueError:
+            return make_response_json({
+                'status': 'fail',
+                'reason': 'wrong date'
+            })
         result = query_by_station_min_price(session, request.args.get("fuel_type"),
                                             get_date_param(request, 'date_of_price'))
         result_dict = helpers.query_to_dict(result)
-        return make_response_json(result_dict)
+        return make_response_json({'status': 'ok', 'data': result_dict})
 
 
 @api.route('/price_by_day')
@@ -60,12 +72,19 @@ class PriceByDay(Resource):
         if len(companies) > 0:
             company_name = companies[0]['name']
             company_address = companies[0]['adress']
+            try:
+                get_date_param(request, 'date_of_price')
+            except ValueError:
+                return make_response_json({
+                    'status': 'fail',
+                    'reason': 'wrong date'
+                })
             result = query_by_station_current_date(session, company_name, company_address,
                                                    get_date_param(request, 'date_of_price'))
             result_dict = helpers.query_to_dict(result)
         else:
             result_dict = {}
-        return make_response_json(result_dict)
+        return make_response_json({'status': 'ok', 'data': result_dict})
 
 
 @api.route('/avg_price')
@@ -76,9 +95,16 @@ class AVGPrice(Resource):
     @api.expect(request_arguments, validate=True)
     def get(self):
         """Returns average prices for all gas station at particular date (if date is omit at max date with info)."""
+        try:
+            get_date_param(request, 'date_of_price')
+        except ValueError:
+            return make_response_json({
+                'status': 'fail',
+                'reason': 'wrong date'
+            })
         result = query_avg_all_stations(session, get_date_param(request, 'date_of_price'))
         result_dict = helpers.query_to_dict(result)
-        return make_response_json(result_dict)
+        return make_response_json({'status': 'ok', 'data': result_dict})
 
 
 @api.route('/avg_price_period')
@@ -91,10 +117,23 @@ class AVGPricePeriod(Resource):
     @api.expect(request_arguments, validate=True)
     def get(self):
         """Returns average prices for fuel at period (if dates are omit for last 10 days)."""
+        if not request.args.get("fuel_type"):
+            return make_response_json({
+                'status': 'fail',
+                'reason': 'no fuel type provided'
+            })
+        try:
+            get_date_param(request, 'date_from')
+            get_date_param(request, 'date_to')
+        except ValueError:
+            return make_response_json({
+                'status': 'fail',
+                'reason': 'wrong date'
+            })
         result = query_avg_price_period(session, request.args.get("fuel_type"),
                                         get_date_param(request, 'date_from'), get_date_param(request, 'date_to'))
         result_dict = helpers.query_to_dict(result)
-        return make_response_json(result_dict)
+        return make_response_json({'status': 'ok', 'data': result_dict})
 
 
 @api.route('/all_price_period')
@@ -106,10 +145,18 @@ class AllPricePeriod(Resource):
     @api.expect(request_arguments, validate=True)
     def get(self):
         """Returns all prices for period (if dates are omit for last 10 days)."""
+        try:
+            get_date_param(request, 'date_from')
+            get_date_param(request, 'date_to')
+        except ValueError:
+            return make_response_json({
+                'status': 'fail',
+                'reason': 'wrong date'
+            })
         result = query_all_price_period(session, get_date_param(request, 'date_from'),
                                         get_date_param(request, 'date_to'))
         result_dict = helpers.query_to_dict(result)
-        return make_response_json(result_dict)
+        return make_response_json({'status': 'ok', 'data': result_dict})
 
 
 @api.route('/upload_image')
@@ -123,6 +170,12 @@ class UploadImage(Resource):
         """Saves the file from link to dropbox as file_name."""
         file_path = request.args['file_link']
         dbx_path = '/telegram_files/' + request.args['file_name']
-        dbx_path, dbx_link = upload_image_to_dbx(file_path, dbx_path)
+        try:
+            dbx_path, dbx_link = upload_image_to_dbx(file_path, dbx_path)
+        except Exception:
+            return make_response_json({
+                'status': 'fail',
+                'reason': Exception
+            })
         result_dict = {"dropbox_path": dbx_path}
-        return make_response_json(result_dict)
+        return make_response_json({'status': 'ok', 'data': result_dict})
