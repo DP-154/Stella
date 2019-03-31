@@ -35,3 +35,5 @@ def query_to_list(result):
             f"price on {row_dict['date_of_price'].strftime('%Y-%m-%d %H:%M:%S')}\n\n"
         result_list.append(string)
     return result_list
+
+

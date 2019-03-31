@@ -13,9 +13,18 @@ restful = Blueprint('restful', __name__, url_prefix='/restful')
 
 session = session_maker()
 
-# class BadRequest(Exception):
-#
-#     def __init__(self, message, status_code, paylod=None):
+
+@restful.errorhandler(Exception)
+def handle_error(error):
+    error_type = error.__class__.__name__
+    error_message = error.__str__()
+    resp = make_response(json.dumps({
+        "status": "error",
+        "type": error_type,
+        "message": error_message
+    }))
+    resp.mimetype = 'application/json'
+    return resp
 
 
 @restful.route('/min_by_fuel', methods=['GET'])
