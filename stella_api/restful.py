@@ -39,7 +39,6 @@ def min_price():
     json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
     resp = make_response(json_data)
     resp.mimetype = 'application/json'
-    resp.status = 200
 
     return resp
 
@@ -60,7 +59,6 @@ def price_by_day():
     json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
     resp = make_response(json_data)
     resp.mimetype = 'application/json'
-    resp.status = 200
     return resp
 
 
@@ -75,7 +73,6 @@ def avg_price():
     json_data = json.dumps(result_dict, default=helpers.to_serializable, ensure_ascii=False)
     resp = make_response(json_data)
     resp.mimetype = 'application/json'
-    resp.status = 200
     return resp
 
 
