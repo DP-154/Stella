@@ -8,7 +8,7 @@ from services.service_data import store_bot_data, upload_image_to_dbx, get_teleg
 from bots.bot_services import gas_station_info, pagination_output
 import bots.constants as const
 from database.db_query_bot import query_all_price_period
-from database.db_connection import session_maker
+from database.queries import session_scope
 from stella_api.helpers import query_to_list
 
 # TODO db queries
@@ -132,9 +132,8 @@ def dataloc(bot, update, user_data):
     bot.edit_message_text(chat_id=update.effective_message.chat_id,
                           message_id=user_data['start_msg_id'],
                           text="processing...")
-    session = session_maker()
-    response = query_all_price_period(session)
-    session.close()
+    with session_scope() as session:
+        response = query_all_price_period(session)
     user_data['db_output'] = query_to_list(response)
     user_data['gas_per_msg'] = 5
     user_data['position'] = 0
