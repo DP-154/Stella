@@ -89,6 +89,29 @@ def create():
 
 
 @cli.command()
+def fixture():
+    """fixture"""
+    from database.models import Fuel, FuelCompany
+    from database.queries import session_scope
+    with session_scope() as session:
+        for company_name in ['Юкон', 'Брсм']:
+            session.add(FuelCompany(fuel_company_name=company_name))
+            session.commit()
+        for fuel, is_premium in [('95E+', False),
+                                 ('95E', False),
+                                 ('95E Premium', True),
+                                 ('92', False),
+                                 ('ДП Euro', False),
+                                 ('ДП', False),
+                                 ('ГАЗ', False),
+                                 ('95+', False),
+                                 ('95', False),
+                                 ('ДТ', False)]:
+            session.add(Fuel(fuel_type=fuel, is_premium=is_premium))
+            session.commit()
+
+
+@cli.command()
 @click.option('--all', is_flag=True)
 @click.option('--tables')
 def truncate(all, tables):
