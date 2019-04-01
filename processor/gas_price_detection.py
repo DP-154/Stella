@@ -1,12 +1,13 @@
+from os import path
+
 import cv2
 import numpy as np
 from keras.models import load_model
 from skimage import io
-from os import path
+
 
 model = load_model(path.join(path.dirname(__file__), 'my_model.h5'))
-# https://github.com/keras-team/keras/issues/6462#issuecomment-319232504
-model._make_predict_function()
+model._make_predict_function()  # https://github.com/keras-team/keras/issues/6462#issuecomment-319232504
 
 
 def get_digits(contours, hierarchy):
@@ -15,12 +16,12 @@ def get_digits(contours, hierarchy):
     final_bounding_rectangles = []
 
     u, indices = np.unique(hierarchy[:, -1], return_inverse=True)
-    most_common_heirarchy = u[np.argmax(np.bincount(indices))]
+    most_common_hierarchy = u[np.argmax(np.bincount(indices))]
 
     for r, hr in zip(bounding_rectangles, hierarchy):
         x, y, w, h = r
 
-        if ((w * h) > 1400) and (10 <= w <= 330) and (60 <= h <= 280) and hr[3] == most_common_heirarchy:
+        if ((w * h) > 1400) and (10 <= w <= 330) and (60 <= h <= 280) and hr[3] == most_common_hierarchy:
             final_bounding_rectangles.append(r)
 
     return final_bounding_rectangles
@@ -32,7 +33,7 @@ def get_roi(result):
     thresh = cv2.erode(thresh, kernel, iterations=1)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
     digits_rectangles = get_digits(contours, hierarchy)
-    return (digits_rectangles)
+    return digits_rectangles
 
 
 def crop_images(img, roi):
@@ -48,7 +49,7 @@ def digit_recognition(crop_image, roi):
     img = cv2.resize(crop_image, (28, 28))
     img = img[np.newaxis]
     img = img.reshape(img.shape[0], 28, 28, 1)
-    return (np.argmax(model.predict(img)))
+    return np.argmax(model.predict(img))
 
 
 class BrsmDetect:
@@ -56,7 +57,7 @@ class BrsmDetect:
     def __init__(self, img_path):
         self.img_path = img_path
 
-    def preproces_image(self):
+    def preprocess_image(self):
         image = io.imread(self.img_path)
         image = cv2.resize(image, (1000, 1000))
         y = 0
@@ -74,7 +75,7 @@ class BrsmDetect:
         return closing
 
     def digit_to_price(self):
-        result = BrsmDetect.preproces_image(self)
+        result = BrsmDetect.preprocess_image(self)
         roi = get_roi(result)
         roi2 = sorted(roi, key=lambda x: int(x[1]))
         roi_sort = [roi2[i:i + 4] for i in range(0, len(roi2), 4)]
@@ -85,7 +86,7 @@ class BrsmDetect:
             digit = []
             for list in roi_sort:
                 for number in list:
-                    img = BrsmDetect.preproces_image(self)
+                    img = BrsmDetect.preprocess_image(self)
                     crop_image1 = crop_images(img, number)
                     digit.append(digit_recognition(crop_image1, number))
 
