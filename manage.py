@@ -97,7 +97,7 @@ def truncate(all, tables):
         from database.database_manupulation import truncate_all_tables
         truncate_all_tables()
     elif tables:
-        from dataclasses.database_manupulation import truncate_tables
+        from database.database_manupulation import truncate_tables
         truncate_tables(*tables.split(','))
 
 
