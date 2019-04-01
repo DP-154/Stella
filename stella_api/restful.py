@@ -68,7 +68,15 @@ class PriceByDay(Resource):
     @api.expect(request_arguments, validate=True)
     def get(self):
         """Returns all prices for gas station at particular date (if date is omit at max date with info)."""
-        companies = gasStationInfo(request.args["longitude"], request.args["latitude"])
+        try:
+            longitude = float(request.args.get("longitude"))
+            latitude = float(request.args.get("latitude"))
+        except ValueError:
+            return make_response_json({
+                'status': 'fail',
+                'reason': 'wrong longitude or latitude'
+            })
+        companies = gasStationInfo(longitude, latitude)
         if len(companies) > 0:
             company_name = companies[0]['name']
             company_address = companies[0]['adress']
