@@ -62,7 +62,7 @@ def store_bot_data(telegram_id, image_link, image_path, company_name, address):
                 except RuntimeError:
                     res_str = res_str+f"there isn't a fuel {rec_fuel_type} \n"
                 else:
-                    res_str = res_str + f'A{rec_fuel_type}: {price} uah \n'
+                    res_str = res_str + f'{rec_fuel_type}: {price} uah \n'
             else:
                 res_str = res_str+f'{price} is not a float number \n'
         else:
