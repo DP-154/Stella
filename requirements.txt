@@ -21,3 +21,4 @@ keras==2.2.4
 scikit-image==0.14.2
 python-google-places==1.4.1
 plotly==3.7.1
+flask-restplus==0.12.1

@@ -76,5 +76,5 @@ def index():
 def for_fun():
     provider = data_provider.DropBoxDataProvider(os.environ['DROPBOX_TOKEN'])
     files_list = provider.get_list_of_objects('/graph_html/')
-    file_download = provider.file_download('templates/temp/' + files_list[0][0], '/graph_html/' + files_list[0][0])
-    return render_template(str(file_download))
+    file_download = provider.file_download('stella_api/templates/temp/' + files_list[0][0], '/graph_html/' + files_list[0][0])
+    return render_template(str('temp/' + files_list[0][0],))
