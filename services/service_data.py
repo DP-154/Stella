@@ -5,7 +5,7 @@ import os
 from database.db_connection import session_maker
 from database.queries import session_scope, update_image
 from database.models import GasStation, FuelCompany
-from database.db_store_data_bot import db_store_start, db_get_fuel, db_store_recognized
+from database.db_store_data_bot import db_store_start
 # from processor.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
 from processor.image_recognition import digit_to_price
 from processor.gas_price_detection import YukonDetect
@@ -43,7 +43,6 @@ def store_bot_data(telegram_id, image_link, image_path, company_name, address):
     else:
         count_tuple = len(recognition_tuple)
 
-
     res_str = ''
     recognition_result = namedtuple('rec_result', ['is_recognized', 'fuel_type', 'price'])
     location_result = namedtuple('loc_result', ['gas_station', 'is_from_metadata'])
@@ -56,13 +55,13 @@ def store_bot_data(telegram_id, image_link, image_path, company_name, address):
             if price.replace('.', '', 1).isdigit():
                 rec_price = float(price)
                 rr = recognition_result(is_recognized, rec_fuel_type, rec_price)
-                lr = location_result(stored_data['gas_station'], TMP_IS_FROM_METADATA)
+                lr = location_result(stored_data.gas_station, TMP_IS_FROM_METADATA)
                 try:
-                    update_image(session, stored_data['image'], rr, lr)
+                    update_image(session, stored_data.image, rr, lr)
                 except RuntimeError:
                     res_str = res_str+f"there isn't a fuel {rec_fuel_type} \n"
                 else:
-                    res_str = res_str + f'A{rec_fuel_type}: {price} uah \n'
+                    res_str = res_str + f'{rec_fuel_type}: {price} uah \n'
             else:
                 res_str = res_str+f'{price} is not a float number \n'
         else:

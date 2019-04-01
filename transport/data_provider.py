@@ -28,14 +28,15 @@ class DataProviderBase:
         raise NotImplementedError
 
 
-def _error_handler(f):
-    def wrapper(*args):
-        try:
-            return f(*args)
-        except ApiError:
-            return None
-
-    return wrapper
+def supress(ex):
+    def _error_handler(f):
+        def wrapper(*args):
+            try:
+                return f(*args)
+            except ex:
+                return None
+        return wrapper
+    return _error_handler
 
 
 def for_all_methods(decorator):
@@ -48,7 +49,7 @@ def for_all_methods(decorator):
     return decorate
 
 
-@for_all_methods(_error_handler)
+@for_all_methods(supress(ApiError))
 class DropBoxDataProvider(DataProviderBase):
     smoke_url = DROPBOX_SMOKE_URL
 

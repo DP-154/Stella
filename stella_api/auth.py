@@ -2,6 +2,7 @@ from flask import Blueprint, request, redirect, flash, url_for, render_template
 from flask_login import current_user, login_user, logout_user
 from database.models import User
 from database.db_connection import session_maker
+from database.queries import session_scope
 from stella_api.forms import SignInForm, SignUpForm
 from werkzeug.urls import url_parse
 
@@ -15,17 +16,18 @@ def sign_in():
         return redirect(url_for('ui.prices'))
     form = SignInForm(meta={'csrf': False})
     if form.validate_on_submit():
-        session = session_maker()
-        user = session.query(User).filter(User.username == form.username.data).first()
-        session.close()
-        if user is None or not user.check_password(form.password.data):
-            flash("Invalid username and/or password")
-            return redirect(url_for('auth.sign_in'))
-        login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('ui.prices')
-        return redirect(next_page)
+        with session_scope() as session:
+            user = (session.query(User)
+                    .filter(User.username == form.username.data)
+                    .first())
+            if user is None or not user.check_password(form.password.data):
+                flash("Invalid username and/or password")
+                return redirect(url_for('auth.sign_in'))
+            login_user(user, remember=form.remember_me.data)
+            next_page = request.args.get('next')
+            if not next_page or url_parse(next_page).netloc != '':
+                next_page = url_for('ui.prices')
+            return redirect(next_page)
     return render_template('auth/login.html', form=form)
 
 
@@ -37,10 +39,9 @@ def sign_up():
     if form.validate_on_submit():
         user = User(username=form.username.data)
         user.set_password(form.password.data)
-        session = session_maker()
-        session.add(user)
-        session.commit()
-        session.close()
+        with session_scope() as session:
+            session.add(user)
+            session.commit()
         flash("Registration successful. Please, sign in now.")
         return redirect(url_for('auth.sign_in'))
     return render_template('auth/register.html', form=form)

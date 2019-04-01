@@ -1,6 +1,7 @@
 from .models import (Base, User, FuelCompany, Fuel, GasStation,
                     Images, Price)
-from .db_connection import session_maker, engine
+from .db_connection import engine
+from .queries import session_scope
 
 mapping = {
     'user': User,
@@ -19,22 +20,18 @@ def create_all():
 
 
 def truncate_tables(*table_names):
-    session = session_maker()
-    tables = [t.lower() for t in table_names]
-    for t in tables:
-        to_delete = mapping.get(t)
-        if to_delete:
-            session.execute(to_delete.__table__.delete())
-    session.commit()
-    session.close()
+    with session_scope() as session:
+        tables = [t.lower() for t in table_names]
+        for t in tables:
+            to_delete = mapping.get(t)
+            if to_delete:
+                session.execute(to_delete.__table__.delete())
 
 
 def truncate_all_tables():
-    session = session_maker()
-    for table in (User, FuelCompany, Fuel, GasStation, Images, Price):
-        session.execute(table.__table__.delete())
-    session.commit()
-    session.close()
+    with session_scope() as session:
+        for table in (User, FuelCompany, Fuel, GasStation, Images, Price):
+            session.execute(table.__table__.delete())
 
 
 def drop_tables(*table_names):
