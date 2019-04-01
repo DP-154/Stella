@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, render_template, redirect, url_for, flash
 from stella_api.forms import SendPhotoForm
 from werkzeug.utils import secure_filename
@@ -8,6 +10,8 @@ from database.db_query_bot import query_all_price_period, query_all_gas_stations
 
 from stella_api.helpers import query_to_dict
 from services.service_data import upload_image_to_dbx
+
+from transport import data_provider
 
 
 ui = Blueprint('ui', __name__, url_prefix='/')
@@ -68,6 +72,9 @@ def index():
     return render_template('index.html')
 
 
-@ui.route('/test')
-def fot_fun():
-    return render_template('graphic_example.html')
+@ui.route('/graphic')
+def for_fun():
+    provider = data_provider.DropBoxDataProvider(os.environ['DROPBOX_TOKEN'])
+    files_list = provider.get_list_of_objects('/graph_html/')
+    file_download = provider.file_download('templates/temp/' + files_list[0][0], '/graph_html/' + files_list[0][0])
+    return render_template(str(file_download))
