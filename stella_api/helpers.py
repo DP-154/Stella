@@ -50,3 +50,5 @@ def query_to_list(result):
         string += f"price on {key}\n\n"
         result_list.append(string)
     return result_list
+
+
