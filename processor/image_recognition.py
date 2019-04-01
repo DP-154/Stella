@@ -1,15 +1,15 @@
+from os import path
+
 import cv2
 import numpy as np
 from keras.models import load_model
 from skimage import io
 
-from os import path
-path_model=path.join(path.dirname(__file__), 'my_model.h5')
+
+path_model = path.join(path.dirname(__file__), 'my_model.h5')
 model = load_model(path_model)
 
-#model = load_model('processor/my_model.h5')
-# https://github.com/keras-team/keras/issues/6462#issuecomment-319232504
-model._make_predict_function()
+model._make_predict_function() # https://github.com/keras-team/keras/issues/6462#issuecomment-319232504
 
 
 class DigitDetection:
@@ -32,7 +32,6 @@ class DigitDetection:
                 final_bounding_rectangles.append(r)
 
         return final_bounding_rectangles
-
 
     def detection_roi_user_img(self):
 
@@ -68,7 +67,7 @@ def digit_recognition(TEST_USER_IMG, roi):
     img = cv2.resize(img, (28, 28))
     img = img[np.newaxis]
     img = img.reshape(img.shape[0], 28, 28, 1)
-    return(np.argmax(model.predict(img)))
+    return np.argmax(model.predict(img))
 
 
 def digit_to_price(img_path):

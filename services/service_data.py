@@ -43,7 +43,6 @@ def store_bot_data(telegram_id, image_link, image_path, company_name, address):
     else:
         count_tuple = len(recognition_tuple)
 
-
     res_str = ''
     recognition_result = namedtuple('rec_result', ['is_recognized', 'fuel_type', 'price'])
     location_result = namedtuple('loc_result', ['gas_station', 'is_from_metadata'])
