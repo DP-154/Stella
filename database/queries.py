@@ -1,5 +1,8 @@
 from operator import attrgetter
 from contextlib import contextmanager
+from datetime import datetime, date, timedelta
+
+from sqlalchemy.sql import func
 
 from .db_connection import session_maker
 from .models import (FuelCompany, GasStation, User, Images, Fuel,
@@ -39,6 +42,48 @@ def get_or_none(session, model, **kwargs):
 def list_fuel_company_names(session):
     instances = session.query(FuelCompany).all()
     return list(map(attrgetter('fuel_company_name'), instances))
+
+
+def query(session, **kwargs):
+    date_ = kwargs.get('date')
+    companies_list = kwargs.get('companies_list')
+    gas_station_list = kwargs.get('gas_station_list')
+    fuel_types_list = kwargs.get('fuel_types_list')
+    aggregate = kwargs.get('aggregate')
+
+    if aggregate and aggregate in ('min', 'max', 'avg'):
+        mapping = {'min': func.min, 'max': func.max, 'avg': func.avg}
+        q = session.query(mapping[aggregate](Price.price).label('average'))
+    else:
+        q = session.query(Price)
+
+    if date_:
+        if isinstance(date_, tuple) or isinstance(date_, list):
+            from_, to = date_
+            if isinstance(from_, datetime):
+                from_ = from_.strftime('%Y-%m-%d')
+            if isinstance(to, datetime):
+                to = to.strftime('%Y-%m-%d')
+            q = q.filter(Price.date_of_price.between(from_, to))
+        elif isinstance(date_, str):
+            now = date(*[int(i) for i in date_.split('-')])
+            next_ = (now + timedelta(days=1)).strftime('%Y-%m-%d')
+            prev = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+            q = q.filter(Price.date_of_price.between(prev, next_))
+
+    if companies_list:
+        q = (q
+             .join(GasStation, FuelCompany)
+             .filter(FuelCompany.fuel_company_name.in_(companies_list)))
+    elif gas_station_list:
+        q = (q
+             .join(GasStation)
+             .filter(GasStation.address.in_(gas_station_list)))
+    if fuel_types_list:
+        q = (q
+             .join(Fuel)
+             .filter(Fuel.fuel_type.in_(fuel_types_list)))
+    return q
 
 
 """

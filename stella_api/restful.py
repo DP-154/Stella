@@ -14,8 +14,6 @@ from stella_api import helpers
 restful = Blueprint('restful', __name__, url_prefix='/restful')
 api = Api(restful, doc='/docs')
 
-session = session_maker()
-
 
 def get_date_param(cur_request, name):
     date_param = cur_request.args.get(name, None)
