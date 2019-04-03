@@ -1,18 +1,20 @@
 import json
-from datetime import datetime, date
+from datetime import datetime
 
 from flask import request, Blueprint, make_response
 from flask_restplus import Api, Resource, reqparse
 
+from bots.bot_services import gas_station_info
 from database.db_connection import session_maker
 from database.db_query_bot import (query_by_station_min_price, query_by_station_current_date, query_avg_all_stations,
                                    query_all_price_period, query_avg_price_period)
-from processor.imageMetadata.coordinates_metadata import gasStationInfo
 from services.service_data import upload_image_to_dbx
 from stella_api import helpers
 
 restful = Blueprint('restful', __name__, url_prefix='/restful')
 api = Api(restful, doc='/docs')
+session = session_maker()
+
 session = session_maker()
 
 
@@ -60,8 +62,8 @@ class MinPrice(Resource):
 @api.route('/price_by_day')
 class PriceByDay(Resource):
     request_arguments = reqparse.RequestParser()
-    request_arguments.add_argument('longitude', type=float, required=True, help="longitude of gas station")
     request_arguments.add_argument('latitude', type=float, required=True, help="latitude of gas station")
+    request_arguments.add_argument('longitude', type=float, required=True, help="longitude of gas station")
     request_arguments.add_argument('date_of_price', type=str, help="Date format: day-month-year ")
 
     @api.expect(request_arguments, validate=True)
@@ -75,10 +77,10 @@ class PriceByDay(Resource):
                 'status': 'fail',
                 'reason': 'wrong longitude or latitude'
             })
-        companies = gasStationInfo(longitude, latitude)
+        companies = gas_station_info(latitude, longitude)
         if len(companies) > 0:
             company_name = companies[0]['name']
-            company_address = companies[0]['adress']
+            company_address = companies[0]['address']
             try:
                 get_date_param(request, 'date_of_price')
             except ValueError:
@@ -186,3 +188,6 @@ class UploadImage(Resource):
             })
         result_dict = {"dropbox_path": dbx_path}
         return make_response_json({'status': 'ok', 'data': result_dict})
+
+
+session.close()
