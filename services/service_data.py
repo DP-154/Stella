@@ -6,7 +6,6 @@ from database.db_connection import session_maker
 from database.queries import session_scope, update_image
 from database.models import GasStation, FuelCompany
 from database.db_store_data_bot import db_store_start
-# from processor.imageMetadata.coordinates_metadata import MetaDataFromCoordinates
 from processor.image_recognition import digit_to_price
 from processor.gas_price_detection import YukonDetect
 from processor.gas_price_detection import BrsmDetect
@@ -33,8 +32,6 @@ def comany_and_address(lat, long):
 
 
 def store_bot_data(telegram_id, image_link, image_path, company_name, address):
-    # TODO maybe refactor with 1 argument - dict?
-    # TODO put in database GPS coordinates
     session = session_maker()
     stored_data = db_store_start(session, telegram_id, image_path, company_name, address)
     recognition_tuple = get_recognition_tuple(company_name, image_link)
@@ -89,7 +86,8 @@ def upload_image_to_dbx(file_path, dbx_path):
 
 
 def get_recognition_class(company_name):
-    company_dict = {('yukon', 'юкон'): YukonDetect, ('brsm', 'брсм'): BrsmDetect}
+    company_dict = {('yukon', 'юкон', 'авіас', 'glusco'): YukonDetect,
+                    ('brsm', 'брсм', 'okko', 'окко', 'wog', 'нефтек', 'socar'): BrsmDetect}
     for comp_dict_names in company_dict.keys():
         for name in comp_dict_names:
             if company_name.strip().lower().find(name) > -1:

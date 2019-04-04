@@ -3,18 +3,6 @@ from googleplaces import GooglePlaces, types, lang
 from math import ceil
 
 
-# TODO: antiduplicate function, that will delete stations with same addresses
-# TODO: antiduplicate function algorithm:
-# 1. Get stations with same or similar company names and their coordinates
-# 2. Calculate distance between these stations
-# 3. If distance is lower than 50 meters, for example, function should delete
-#    one of them
-
-
-def antiduplicate(lst):
-    pass
-
-
 def get_query_result(lat, lng, radius):
     google_places = GooglePlaces(os.environ['api_google_key'])
     query_result = google_places.nearby_search(
@@ -22,10 +10,26 @@ def get_query_result(lat, lng, radius):
         radius=radius, types=[types.TYPE_GAS_STATION], language=lang.UKRANIAN)
     return query_result.places
 
-# TODO refactor name and address formatting in this function:
+def gas_format(string):
+    dic = {
+        'азс':    '',
+        'сервіс': '',
+        'авиас':  'авіас',
+        'плюс':   '',
+        'avias':  'авіас',
+        '-нафта': '',
+        'yukon': 'юкон',
+        'service': ''
+
+    }
+    string = string.lower().strip()
+    for word in dic.keys():
+        string = string.replace(word, dic[word]).strip()
+    string = string.capitalize()
+    return string
 
 
-def gas_station_info(lat, lng, radius=50):
+def get_gas_staton_info_from_google(lat, lng, radius=50):
     res_list = []
     query_result = None
     while not query_result:
@@ -40,8 +44,11 @@ def gas_station_info(lat, lng, radius=50):
             continue
         address[0] = address[0].replace('вулиця', 'вул.')
         address[0] = address[0].replace('проспект', 'пр.')
+        name = gas_format(place.name)
+        if not name:
+            continue
         res_list.append({
-            'name': place.name.replace('АЗС', ''),
+            'name': name,
             'address': address[0] + ', ' + address[1],
             'lat': place.geo_location['lat'],
             'lng': place.geo_location['lng']

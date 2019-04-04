@@ -97,16 +97,13 @@ def fixture():
         for company_name in ['Юкон', 'Брсм']:
             session.add(FuelCompany(fuel_company_name=company_name))
             session.commit()
-        for fuel, is_premium in [('95E+', False),
-                                 ('95E', False),
-                                 ('95E Premium', True),
+        for fuel, is_premium in [('95+', False),
+                                 ('95E', True),
                                  ('92', False),
-                                 ('ДП Euro', False),
+                                 ('ДП+', False),
                                  ('ДП', False),
                                  ('ГАЗ', False),
-                                 ('95+', False),
-                                 ('95', False),
-                                 ('ДТ', False)]:
+                                 ('95', False)]:
             session.add(Fuel(fuel_type=fuel, is_premium=is_premium))
             session.commit()
 
@@ -194,7 +191,7 @@ def repl():
 @cli.command()
 def help():
     print('run - runs apllication\n'
-          'show_schema - describes database schema\n'
+          'show-schema - describes database schema\n'
           'create - creates table(s)\n'
           'truncate - truncates table(s)\n'
           'drop - drops table(s)\n'
