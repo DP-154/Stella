@@ -4,16 +4,14 @@ from datetime import datetime
 from flask import request, Blueprint, make_response
 from flask_restplus import Api, Resource, reqparse
 
-from bots.bot_services import gas_station_info
 from database.db_connection import session_maker
-from database.db_query_bot import (query_by_station_min_price, query_by_station_current_date, query_avg_all_stations,
+from database.db_query_bot import (query_by_station_min_price, query_avg_all_stations,
                                    query_all_price_period, query_avg_price_period)
 from services.service_data import upload_image_to_dbx
 from stella_api import helpers
 
 restful = Blueprint('restful', __name__, url_prefix='/restful')
 api = Api(restful, doc='/docs')
-session = session_maker()
 
 session = session_maker()
 
@@ -56,43 +54,6 @@ class MinPrice(Resource):
         result = query_by_station_min_price(session, request.args.get("fuel_type"),
                                             get_date_param(request, 'date_of_price'))
         result_dict = helpers.query_to_dict(result)
-        return make_response_json({'status': 'ok', 'data': result_dict})
-
-
-@api.route('/price_by_day')
-class PriceByDay(Resource):
-    request_arguments = reqparse.RequestParser()
-    request_arguments.add_argument('latitude', type=float, required=True, help="latitude of gas station")
-    request_arguments.add_argument('longitude', type=float, required=True, help="longitude of gas station")
-    request_arguments.add_argument('date_of_price', type=str, help="Date format: day-month-year ")
-
-    @api.expect(request_arguments, validate=True)
-    def get(self):
-        """Returns all prices for gas station at particular date (if date is omit at max date with info)."""
-        try:
-            longitude = float(request.args.get("longitude"))
-            latitude = float(request.args.get("latitude"))
-        except ValueError:
-            return make_response_json({
-                'status': 'fail',
-                'reason': 'wrong longitude or latitude'
-            })
-        companies = gas_station_info(latitude, longitude)
-        if len(companies) > 0:
-            company_name = companies[0]['name']
-            company_address = companies[0]['address']
-            try:
-                get_date_param(request, 'date_of_price')
-            except ValueError:
-                return make_response_json({
-                    'status': 'fail',
-                    'reason': 'wrong date'
-                })
-            result = query_by_station_current_date(session, company_name, company_address,
-                                                   get_date_param(request, 'date_of_price'))
-            result_dict = helpers.query_to_dict(result)
-        else:
-            result_dict = {}
         return make_response_json({'status': 'ok', 'data': result_dict})
 
 
