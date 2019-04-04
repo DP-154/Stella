@@ -31,3 +31,13 @@ getdata_keyboard = [
 
 getdata_text = 'Data filters:\nLocation - No matter\nDate range - Last 10 days\n' \
                'Companies - all\nGas stations - all\nFuel type - all\nStatistic - none'
+
+step_change_keyboard = [[InlineKeyboardButton('1', callback_data=1),
+                InlineKeyboardButton('2', callback_data=2),
+                InlineKeyboardButton('3', callback_data=3)],
+                [InlineKeyboardButton('4', callback_data=4),
+                InlineKeyboardButton('5', callback_data=5),
+                InlineKeyboardButton('6', callback_data=6)],
+                [InlineKeyboardButton('7', callback_data=7),
+                InlineKeyboardButton('8', callback_data=8),
+                InlineKeyboardButton('9', callback_data=9)]]

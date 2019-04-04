@@ -8,8 +8,8 @@ from processor.gas_price_detection import BrsmDetect, YukonDetect
 wrong_image = 'file_0.jpg'
 
 seq = {
-    'brsm': ['95E+', '95E', '95E Premium', '92', 'ДП Euro', 'ДП', 'ГАЗ'],
-    'yukon': ['95+', '95', '92', 'ДТ']
+    'brsm': ['95+', '95', '95E', '92', 'ДП+', 'ДП', 'ГАЗ'],
+    'yukon': ['95+', '95', '92', 'ДП']
 }
 
 matrix = {

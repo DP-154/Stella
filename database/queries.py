@@ -44,7 +44,12 @@ def list_fuel_company_names(session):
     return list(map(attrgetter('fuel_company_name'), instances))
 
 
-def query(session, **kwargs):
+def list_fuels(session):
+    instances = session.query(Fuel).all()
+    return list(map(attrgetter('fuel_type'), instances))
+
+
+def custom_query(session, **kwargs):
     date_ = kwargs.get('date')
     companies_list = kwargs.get('companies_list')
     gas_station_list = kwargs.get('gas_station_list')
@@ -65,10 +70,10 @@ def query(session, **kwargs):
             if isinstance(to, datetime):
                 to = to.strftime('%Y-%m-%d')
             q = q.filter(Price.date_of_price.between(from_, to))
-        elif isinstance(date_, str):
-            now = date(*[int(i) for i in date_.split('-')])
-            next_ = (now + timedelta(days=1)).strftime('%Y-%m-%d')
-            prev = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+        elif isinstance(date_, datetime):
+            #now = date(*[int(i) for i in date_.split('-')])
+            next_ = (date_ + timedelta(days=1)).strftime('%Y-%m-%d')
+            prev = (date_ - timedelta(days=1)).strftime('%Y-%m-%d')
             q = q.filter(Price.date_of_price.between(prev, next_))
 
     if companies_list:
@@ -83,7 +88,7 @@ def query(session, **kwargs):
         q = (q
              .join(Fuel)
              .filter(Fuel.fuel_type.in_(fuel_types_list)))
-    return q
+    return q.all()
 
 
 """
@@ -130,16 +135,13 @@ def update_image(session, image, recognition_result, location_result):
 
     fuel = get_or_none(session, Fuel,
                        fuel_type=recognition_result.fuel_type,
-                       is_premium=False)  # TODO: should be handled by recognition
+                       is_premium=False)
     if not fuel:
         get_or_create(session, Fuel, fuel_type=recognition_result.fuel_type, is_premium=False)
-        #raise RuntimeError('incorrect fuel type retrieved from recognition result')
-
     price = Price(price=recognition_result.price,
                   gas_station=location_result.gas_station,
                   fuel=fuel,
                   image=image)
-
     session.add(image)
     session.add(price)
     session.commit()
